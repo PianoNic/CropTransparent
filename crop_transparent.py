@@ -37,6 +37,6 @@ def crop_transparent(input_path, output_path):
 
 # Example usage
 if __name__ == "__main__":
-    input_file = "Industrial_Island_Step4.png"  # Replace with your input file
+    input_file = "input.png"  # Replace with your input file
     output_file = "output.png"  # Replace with your desired output file
     crop_transparent(input_file, output_file)
