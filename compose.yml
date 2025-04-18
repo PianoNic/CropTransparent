@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3784:5000"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1

@@ -1,0 +1,92 @@
+.drop-zone {
+    border: 2px dashed #cbd5e0;
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover,
+.drop-zone.active {
+    border-color: #4299e1;
+    background-color: rgba(237, 242, 247, 0.7);
+}
+
+.loader {
+    border-top-color: #4299e1;
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Footer Styles */
+.footer {
+    padding: 12px 0;
+    text-align: center;
+    z-index: 10;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 16px;
+}
+
+.footer-link {
+    color: #4a5568;
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.footer-link:hover {
+    opacity: 0.7;
+}
+
+.footer-separator {
+    color: #4a5568;
+    opacity: 0.4;
+    font-size: 0.8rem;
+}
+
+.footer-github-icon {
+    font-size: 0.85rem;
+    margin-left: 4px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+.footer-version {
+    transition: opacity 0.2s;
+}
+
+.footer-version:hover {
+    opacity: 0.7;
+}
+
+.footer-text {
+    color: #4a5568;
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+    .footer-links {
+        gap: 6px;
+    }
+
+    .footer-separator {
+        font-size: 0.7rem;
+    }
+}
