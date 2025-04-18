@@ -7,10 +7,10 @@
   Built with Flask and containerized with Docker for easy deployment.
 </p>
 <p align="center">
-  <a><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FPianonic%2FCropTransparent&count_bg=%234CAF50&title_bg=%23555555&icon=eye.svg&icon_color=%23E7E7E7&title=Visits&edge_flat=false"/></a>
-  <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Pianonic/CropTransparent?color=4CAF50&label=License"/></a>
-  <a href="https://github.com/Pianonic/CropTransparent/releases"><img src="https://img.shields.io/github/v/release/Pianonic/CropTransparent?include_prereleases&color=4CAF50&label=Latest%20Release"/></a>
-  <a href="https://github.com/Pianonic/CropTransparent?tab=readme-ov-file#-installation"><img src="https://img.shields.io/badge/Selfhost-Instructions-4CAF50.svg"/></a>
+  <a><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FPianonic%2FCropTransparent&count_bg=%234667e3&title_bg=%23555555&icon=eye.svg&icon_color=%23E7E7E7&title=Visits&edge_flat=false"/></a>
+  <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Pianonic/CropTransparent?color=4667e3&label=License"/></a>
+  <a href="https://github.com/Pianonic/CropTransparent/releases"><img src="https://img.shields.io/github/v/release/Pianonic/CropTransparent?include_prereleases&color=4667e3&label=Latest%20Release"/></a>
+  <a href="https://github.com/Pianonic/CropTransparent?tab=readme-ov-file#-installation"><img src="https://img.shields.io/badge/Selfhost-Instructions-4667e3.svg"/></a>
 </p>
 
 ## 🚀 Features
