@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 
 <head>
     <meta charset="UTF-8">
@@ -11,63 +11,79 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
-<body class="bg-gray-50 flex flex-col h-screen overflow-hidden">
+<body
+    class="bg-primary text-text-primary flex flex-col h-screen overflow-hidden transition-colors duration-300 ease-in-out">
     <div class="flex-grow overflow-auto py-4 px-4 md:py-6 flex flex-row items-center">
         <div class="max-w-3xl w-full mx-auto px-2 sm:px-4">
             <div class="text-center mb-4 md:mb-6">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-1 md:mb-2">Transparent Image Cropper</h1>
-                <p class="text-sm md:text-base text-gray-600">Automatically crop transparent areas from your images</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Transparent Image Cropper</h1>
+                <p class="text-sm md:text-base text-text-secondary">Automatically crop transparent areas from your
+                    images</p>
             </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-4 md:p-6">
-                <div id="dropZone" class="drop-zone rounded-lg py-6 md:py-10 px-4 text-center cursor-pointer flex flex-col justify-center items-center">
+            <div class="bg-secondary rounded-lg shadow-lg p-4 md:p-6 transition-colors duration-300 ease-in-out">
+                <div id="dropZone"
+                    class="drop-zone rounded-lg py-6 md:py-10 px-4 text-center cursor-pointer flex flex-col justify-center items-center border-border-primary transition-colors duration-300 ease-in-out">
                     <div
-                        class="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-blue-100">
-                        <svg class="h-5 w-5 md:h-6 md:w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
+                        class="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-blue-100 dark:bg-blue-900 transition-colors duration-300 ease-in-out">
+                        <svg class="h-5 w-5 md:h-6 md:w-6 text-blue-600 dark:text-blue-300 transition-colors duration-300 ease-in-out"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                     </div>
                     <div class="mt-2 md:mt-3 text-center">
-                        <h3 class="text-md md:text-lg leading-6 font-medium text-gray-900">Upload Image</h3>
+                        <h3 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Upload Image</h3>
                         <div class="mt-1 md:mt-2">
-                            <p class="text-xs md:text-sm text-gray-500">Drag and drop your image here or click to browse
+                            <p class="text-xs md:text-sm text-text-secondary">Drag and drop your image here or click to
+                                browse
                             </p>
-                            <p class="text-xs text-gray-400 mt-1">Supports PNG, GIF, WEBP with transparency</p>
+                            <p class="text-xs text-text-tertiary mt-1">Supports PNG, GIF, WEBP with transparency</p>
                         </div>
                     </div>
                     <input type="file" id="fileInput" class="hidden" accept=".png,.gif,.webp">
-                </div>                
+                </div>
 
                 <div id="loadingSection" class="hidden mt-4 text-center">
-                    <div class="inline-block loader h-8 w-8 rounded-full border-4 border-gray-200"></div>
-                    <p class="mt-2 text-gray-600">Processing your image...</p>
+                    <div class="inline-block loader h-8 w-8 rounded-full border-4 border-gray-200 dark:border-gray-600">
+                    </div>
+                    <p class="mt-2 text-text-secondary">Processing your image...</p>
                 </div>
 
                 <div id="resultSection" class="hidden mt-4 md:mt-6">
                     <div class="flex flex-col md:flex-row gap-3 md:gap-4">
                         <div class="md:w-1/2">
-                            <div class="bg-gray-50 rounded-lg p-3 md:p-4 h-full flex flex-col">
-                                <h3 class="text-md md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Original Size
+                            <div
+                                class="bg-tertiary rounded-lg p-3 md:p-4 h-full flex flex-col transition-colors duration-300 ease-in-out">
+                                <h3 class="text-md md:text-lg font-semibold text-text-heading mb-2 md:mb-3">Original
+                                    Size
                                 </h3>
-                                <p id="originalSize" class="text-blue-600 font-mono text-sm mb-1 md:mb-2">0x0</p>
+                                <p id="originalSize"
+                                    class="text-blue-600 dark:text-blue-400 font-mono text-sm mb-1 md:mb-2 transition-colors duration-300 ease-in-out">
+                                    0x0</p>
                                 <div class="mt-auto">
-                                    <hr class="my-2 md:my-3 border-gray-200">
-                                    <div id="imageSaved" class="text-xs md:text-sm text-gray-600">
-                                        <span class="text-green-500 font-medium" id="percentageSaved">0%</span> smaller
+                                    <hr
+                                        class="my-2 md:my-3 border-border-primary transition-colors duration-300 ease-in-out">
+                                    <div id="imageSaved" class="text-xs md:text-sm text-text-secondary">
+                                        <span
+                                            class="text-green-500 dark:text-green-400 font-medium transition-colors duration-300 ease-in-out"
+                                            id="percentageSaved">0%</span> smaller
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="md:w-1/2">
-                            <div class="bg-gray-50 rounded-lg p-3 md:p-4 h-full flex flex-col">
-                                <h3 class="text-md md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Cropped Size
+                            <div
+                                class="bg-tertiary rounded-lg p-3 md:p-4 h-full flex flex-col transition-colors duration-300 ease-in-out">
+                                <h3 class="text-md md:text-lg font-semibold text-text-heading mb-2 md:mb-3">Cropped Size
                                 </h3>
-                                <p id="croppedSize" class="text-blue-600 font-mono text-sm mb-1 md:mb-2">0x0</p>
+                                <p id="croppedSize"
+                                    class="text-blue-600 dark:text-blue-400 font-mono text-sm mb-1 md:mb-2 transition-colors duration-300 ease-in-out">
+                                    0x0</p>
                                 <div class="mt-auto">
-                                    <hr class="my-2 md:my-3 border-gray-200">
-                                    <div id="imageStats" class="text-xs md:text-sm text-gray-600">
+                                    <hr
+                                        class="my-2 md:my-3 border-border-primary transition-colors duration-300 ease-in-out">
+                                    <div id="imageStats" class="text-xs md:text-sm text-text-secondary">
                                         <span id="croppedFilename" class="truncate block">filename.png</span>
                                     </div>
                                 </div>
@@ -76,9 +92,10 @@
                     </div>
 
                     <div class="mt-4 md:mt-6">
-                        <h3 class="text-md md:text-lg font-semibold text-gray-800 mb-2 md:mb-3">Preview</h3>
-                        <div class="bg-gray-100 rounded-lg p-3 md:p-4 flex items-center justify-center">
-                            <div class="relative max-w-full">
+                        <h3 class="text-md md:text-lg font-semibold text-text-heading mb-2 md:mb-3">Preview</h3>
+                        <div
+                            class="bg-tertiary rounded-lg p-3 md:p-4 flex items-center justify-center transition-colors duration-300 ease-in-out">
+                            <div class="relative max-w-full preview-bg">
                                 <img id="previewImage" src="" alt="Cropped preview"
                                     class="max-w-full h-auto rounded shadow">
                             </div>
@@ -87,11 +104,11 @@
 
                     <div class="mt-4 md:mt-6 flex justify-between">
                         <button id="newImageBtn"
-                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-text-secondary bg-secondary border border-border-primary rounded-md hover:bg-tertiary transition-colors duration-300 ease-in-out">
                             Process New Image
                         </button>
                         <button id="downloadBtn"
-                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 transition-colors duration-300 ease-in-out">
                             Download Cropped Image
                         </button>
                     </div>
@@ -100,7 +117,7 @@
         </div>
     </div>
 
-    <footer class="footer bg-white border-t border-gray-200 mt-2">
+    <footer class="footer bg-secondary border-t border-border-primary mt-2 transition-colors duration-300 ease-in-out">
         <div class="footer-links text-xs md:text-sm">
             <a href="https://github.com/Pianonic/CropTransparent" class="footer-link">CropTransparent</a>
             <span class="footer-separator">•</span>
@@ -120,11 +137,23 @@
             <a href="https://github.com/Pianonic/CropTransparent/releases/tag/v1.0.0" class="footer-link footer-version"
                 target="_blank" id="version">v1.0.0</a>
         </div>
+        <!-- Theme Switcher -->
+        <div class="theme-switcher mt-2 flex justify-center items-center space-x-2">
+            <button id="theme-system" class="theme-button" title="System Theme">
+                <i class="fas fa-desktop"></i>
+            </button>
+            <button id="theme-light" class="theme-button" title="Light Theme">
+                <i class="fas fa-sun"></i>
+            </button>
+            <button id="theme-dark" class="theme-button" title="Dark Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
     </footer>
 
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
-        // Set current year
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
 </body>
