@@ -16,7 +16,8 @@ A modern, lightweight web application for automatically cropping transparent are
 
 ## Demo
 
-![CropTransparent Demo](https://raw.githubusercontent.com/Pianonic/CropTransparent/main/docs/demo.gif)
+![Screenshot1](/assets/Screenshot1.png)
+![Screenshot1](/assets/Screenshot2.png)
 
 ## Quick Start
 
@@ -100,12 +101,7 @@ To contribute to this project:
 
 ## License
 
-Distributed under the GPL-3.0 License. See `LICENSE` for more information.
-
-## Contact
-
-Project Link: [https://github.com/Pianonic/CropTransparent](https://github.com/Pianonic/CropTransparent)
-
+Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 Made with ❤️ by [Pianonic](https://github.com/Pianonic)
