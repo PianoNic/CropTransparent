@@ -59,7 +59,7 @@
     --accent-active: var(--red-dark);
     --accent-active-hover: var(--red-dark-hover);
     --accent-active-bg-subtle: var(--red-bg-subtle-dark);
-    --accent-active-text: #1c1c1c;
+    --accent-active-text: var(--text-primary);
   
     --border-dropzone-hover: var(--accent-active);
     --loader-spin: var(--accent-active);
@@ -249,7 +249,7 @@
   
   .button-accent {
     background-color: var(--accent-active);
-    color: var(--text-primary) !important;
+    color: var(--accent-active-text) !important;
     transition: background-color 0.2s ease-in-out, color 0.3s ease-in-out;
   }
   
