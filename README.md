@@ -21,7 +21,7 @@
 - **Size Comparison**: View the original and cropped dimensions with saved space calculation
 - **Docker Ready**: Easy deployment with Docker and Docker Compose
 
-## 📸 Screenshots
+## 📸 Screenshots (Light and Darkmode)
 <p align="center">
   <img src="/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/><br/>
   <img src="/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
