@@ -23,8 +23,9 @@
 
 ## 📸 Screenshots
 <p align="center">
-  <img src="/assets/Screenshot1.png" width="800" alt="CropTransparent Screenshot 1"><br/>
-  <img src="/assets/Screenshot2.png" width="800" alt="CropTransparent Screenshot 2">
+  <img src="/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/>
+  <img src="/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
+  <img src="/assets/showcase/about.png" width="800" alt="CropTransparent About Page">
 </p>
 
 ## 📦 Installation
