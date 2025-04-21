@@ -1,8 +1,11 @@
 services:
-  web:
+  crop-transparent:
+    container_name: crop-transparent
     build: .
     ports:
       - "3784:5000"
     restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs

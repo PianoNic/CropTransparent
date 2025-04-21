@@ -1,7 +1,8 @@
-from flask import request, send_file, render_template, jsonify
+from flask import Flask, request, send_file, render_template, jsonify
 from src.services.image_service import crop_transparent_image
 import base64
 import io
+import os
 
 def register_routes(app):
     @app.route('/')
@@ -11,6 +12,16 @@ def register_routes(app):
     @app.route('/about')
     def about():
         return render_template('about.html')
+    
+    @app.route('/api/app-info')
+    def app_info():
+        environment = os.environ.get('FLASK_ENV', 'unkown environment')
+        version = os.environ.get('APP_VERSION', 'unkown version')
+        
+        return jsonify({
+            "environment": environment,
+            "version": version
+        })
 
     @app.route('/process', methods=['POST'])
     def process_image():

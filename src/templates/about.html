@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Transparent Image Cropper</title>
+    <script src="{{ url_for('static', filename='js/theme-init.js') }}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app-info.js') }}" defer></script>
 </head>
 
 <body
     class="bg-primary text-text-primary flex flex-col h-screen overflow-hidden transition-colors duration-300 ease-in-out">
     <div class="flex-grow overflow-auto py-4 px-4 md:py-6">
-        <div class="max-w-3xl mx-auto">
+        <div class="max-w-3xl mx-auto pt-6">
             <div class="text-center mb-4 md:mb-6">
                 <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">About CropTransparent</h1>
                 <p class="text-sm md:text-base text-text-secondary">The fast and simple transparent image cropping tool
@@ -43,9 +46,11 @@
 
                     <h2 class="text-xl font-semibold mb-3 text-text-heading">Privacy & Security</h2>
                     <p class="mb-4 text-text-secondary">
-                        Your images never leave your computer. All processing happens in memory on the server, and no
-                        files are stored permanently. The application uses direct memory-to-memory transfer to ensure
-                        your images remain private.
+                        User privacy is prioritized. Uploaded images are processed on the server
+                        <strong>entirely in memory</strong>. No original or cropped images are saved to the
+                        server's disk. The resulting image is streamed directly back to the user's browser.
+                        When the application is self-hosted, images are processed locally and do not
+                        leave the user's machine.
                     </p>
 
                     <h2 class="text-xl font-semibold mb-3 text-text-heading">Open Source</h2>
@@ -56,7 +61,7 @@
 
                     <div class="flex justify-center mt-6">
                         <a href="/"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 transition-colors duration-300 ease-in-out">
+                            class="button-accent px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-red-500 transition-colors duration-300 ease-in-out">
                             Back to App
                         </a>
                     </div>
@@ -80,12 +85,10 @@
             <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"
                 class="footer-link footer-text">MIT</a>
             <span class="footer-separator">•</span>
-            <span class="footer-text" id="environment">production</span>
+            <span class="footer-text" id="environment">loading...</span>
             <span class="footer-separator">•</span>
-            <a href="https://github.com/Pianonic/CropTransparent/releases/tag/v1.0.0" class="footer-link footer-version"
-                target="_blank" id="version">v1.0.0</a>
+            <a href="#" class="footer-link footer-version" target="_blank" id="version">loading...</a>
         </div>
-        <!-- Theme Switcher -->
         <div class="theme-switcher mt-2 flex justify-center items-center space-x-2">
             <button id="theme-system" class="theme-button" title="System Theme">
                 <i class="fas fa-desktop"></i>
@@ -98,11 +101,6 @@
             </button>
         </div>
     </footer>
-
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-    <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
 </body>
 
 </html>

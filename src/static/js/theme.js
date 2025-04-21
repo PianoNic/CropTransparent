@@ -1,32 +1,45 @@
-(() => {
-    const htmlElement = document.getElementById('htmlRoot');
-    const themeSystemBtn = document.getElementById('theme-system');
-    const themeLightBtn = document.getElementById('theme-light');
-    const themeDarkBtn = document.getElementById('theme-dark');
-    const buttons = [themeSystemBtn, themeLightBtn, themeDarkBtn];
+class ThemeManager {
+    constructor() {
+        this.htmlElement = document.getElementById('htmlRoot');
+        this.themeSystemBtn = document.getElementById('theme-system');
+        this.themeLightBtn = document.getElementById('theme-light');
+        this.themeDarkBtn = document.getElementById('theme-dark');
+        this.buttons = [this.themeSystemBtn, this.themeLightBtn, this.themeDarkBtn];
 
-    const getStoredTheme = () => localStorage.getItem('theme');
-    const setStoredTheme = (theme) => localStorage.setItem('theme', theme);
+        this.prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        this.init();
+    }
 
-    const applyTheme = (theme) => {
+    getStoredTheme() {
+        return localStorage.getItem('theme');
+    }
+
+    setStoredTheme(theme) {
+        localStorage.setItem('theme', theme);
+    }
+
+    applyTheme(theme) {
         let themeToApply = theme;
         if (theme === 'system') {
-            themeToApply = prefersDark.matches ? 'dark' : 'light';
+            themeToApply = this.prefersDark.matches ? 'dark' : 'light';
         }
 
         if (themeToApply === 'dark') {
-            htmlElement.classList.add('dark');
+            this.htmlElement.classList.add('dark');
         } else {
-            htmlElement.classList.remove('dark');
+            this.htmlElement.classList.remove('dark');
         }
 
-        updateButtonStates(theme);
-    };
+        this.updateButtonStates(theme);
 
-    const updateButtonStates = (activeTheme) => {
-        buttons.forEach(button => {
+        document.dispatchEvent(new CustomEvent('themeChanged', {
+            detail: { theme: themeToApply }
+        }));
+    }
+
+    updateButtonStates(activeTheme) {
+        this.buttons.forEach(button => {
             if (button) {
                 button.classList.remove('active');
                 if (button.id === `theme-${activeTheme}`) {
@@ -34,33 +47,42 @@
                 }
             }
         });
-    };
+    }
 
-    const initTheme = () => {
-        const storedTheme = getStoredTheme() || 'system';
-        applyTheme(storedTheme);
-    };
+    init() {
+        const storedTheme = this.getStoredTheme() || 'system';
+        this.applyTheme(storedTheme);
 
-    themeSystemBtn?.addEventListener('click', () => {
-        setStoredTheme('system');
-        applyTheme('system');
-    });
+        this.themeSystemBtn?.addEventListener('click', () => {
+            this.setStoredTheme('system');
+            this.applyTheme('system');
+        });
 
-    themeLightBtn?.addEventListener('click', () => {
-        setStoredTheme('light');
-        applyTheme('light');
-    });
+        this.themeLightBtn?.addEventListener('click', () => {
+            this.setStoredTheme('light');
+            this.applyTheme('light');
+        });
 
-    themeDarkBtn?.addEventListener('click', () => {
-        setStoredTheme('dark');
-        applyTheme('dark');
-    });
+        this.themeDarkBtn?.addEventListener('click', () => {
+            this.setStoredTheme('dark');
+            this.applyTheme('dark');
+        });
 
-    prefersDark.addEventListener('change', () => {
-        if (getStoredTheme() === 'system') {
-            applyTheme('system');
-        }
-    });
+        this.prefersDark.addEventListener('change', () => {
+            if (this.getStoredTheme() === 'system') {
+                this.applyTheme('system');
+            }
+        });
+    }
 
-    document.addEventListener('DOMContentLoaded', initTheme);
-})();
+    getCurrentTheme() {
+        const storedTheme = this.getStoredTheme() || 'system';
+        return storedTheme === 'system' ?
+            (this.prefersDark.matches ? 'dark' : 'light') :
+            storedTheme;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.themeManager = new ThemeManager();
+});

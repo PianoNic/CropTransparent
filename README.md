@@ -80,9 +80,7 @@ The application uses the Python Imaging Library (PIL/Pillow) and NumPy to:
 5.  Encode the result and deliver it directly to the user's browser without saving to disk.
 
 ### Security
-- No uploaded files are stored on the server's filesystem.
-- All image processing happens entirely in memory.
-- Cropped images are transferred directly back to the user's browser via data streams.
+User privacy is prioritized. Uploaded images are processed on the server **entirely in memory**. No original or cropped images are saved to the server's disk. The resulting image is streamed directly back to the user's browser. When the application is self-hosted, images are processed locally and do not leave the user's machine.
 
 ## 💻 Development
 To contribute to this project:

@@ -5,16 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transparent Image Cropper</title>
+    <script src="{{ url_for('static', filename='js/theme-init.js') }}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app-info.js') }}" defer></script>
+
 </head>
 
 <body
     class="bg-primary text-text-primary flex flex-col h-screen overflow-hidden transition-colors duration-300 ease-in-out">
     <div class="flex-grow overflow-auto py-4 px-4 md:py-6 flex flex-row items-center">
-        <div class="max-w-3xl w-full mx-auto px-2 sm:px-4">
+        <div class="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-6">
             <div class="text-center mb-4 md:mb-6">
                 <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Transparent Image Cropper</h1>
                 <p class="text-sm md:text-base text-text-secondary">Automatically crop transparent areas from your
@@ -25,8 +30,8 @@
                 <div id="dropZone"
                     class="drop-zone rounded-lg py-6 md:py-10 px-4 text-center cursor-pointer flex flex-col justify-center items-center border-border-primary transition-colors duration-300 ease-in-out">
                     <div
-                        class="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-blue-100 dark:bg-blue-900 transition-colors duration-300 ease-in-out">
-                        <svg class="h-5 w-5 md:h-6 md:w-6 text-blue-600 dark:text-blue-300 transition-colors duration-300 ease-in-out"
+                        class="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 rounded-full bg-accent-active-subtle">
+                        <svg class="h-5 w-5 md:h-6 md:w-6 text-accent-active"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -59,7 +64,7 @@
                                     Size
                                 </h3>
                                 <p id="originalSize"
-                                    class="text-blue-600 dark:text-blue-400 font-mono text-sm mb-1 md:mb-2 transition-colors duration-300 ease-in-out">
+                                    class="text-accent-active font-mono text-sm mb-1 md:mb-2">
                                     0x0</p>
                                 <div class="mt-auto">
                                     <hr
@@ -78,7 +83,7 @@
                                 <h3 class="text-md md:text-lg font-semibold text-text-heading mb-2 md:mb-3">Cropped Size
                                 </h3>
                                 <p id="croppedSize"
-                                    class="text-blue-600 dark:text-blue-400 font-mono text-sm mb-1 md:mb-2 transition-colors duration-300 ease-in-out">
+                                    class="text-accent-active font-mono text-sm mb-1 md:mb-2">
                                     0x0</p>
                                 <div class="mt-auto">
                                     <hr
@@ -104,11 +109,11 @@
 
                     <div class="mt-4 md:mt-6 flex justify-between">
                         <button id="newImageBtn"
-                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-text-secondary bg-secondary border border-border-primary rounded-md hover:bg-tertiary transition-colors duration-300 ease-in-out">
+                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-text-secondary bg-secondary border border-border-primary rounded-md hover:bg-tertiary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-300 ease-in-out">
                             Process New Image
                         </button>
                         <button id="downloadBtn"
-                            class="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 transition-colors duration-300 ease-in-out">
+                            class="button-accent px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-red-500 transition-colors duration-300 ease-in-out">
                             Download Cropped Image
                         </button>
                     </div>
@@ -132,12 +137,10 @@
             <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"
                 class="footer-link footer-text">MIT</a>
             <span class="footer-separator">•</span>
-            <span class="footer-text" id="environment">production</span>
+            <span class="footer-text" id="environment">loading...</span>
             <span class="footer-separator">•</span>
-            <a href="https://github.com/Pianonic/CropTransparent/releases/tag/v1.0.0" class="footer-link footer-version"
-                target="_blank" id="version">v1.0.0</a>
+            <a href="#" class="footer-link footer-version" target="_blank" id="version">loading...</a>
         </div>
-        <!-- Theme Switcher -->
         <div class="theme-switcher mt-2 flex justify-center items-center space-x-2">
             <button id="theme-system" class="theme-button" title="System Theme">
                 <i class="fas fa-desktop"></i>
@@ -150,12 +153,6 @@
             </button>
         </div>
     </footer>
-
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
 </body>
 
 </html>
