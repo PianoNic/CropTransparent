@@ -82,15 +82,6 @@ The application uses the Python Imaging Library (PIL/Pillow) and NumPy to:
 ### Security
 User privacy is prioritized. Uploaded images are processed on the server **entirely in memory**. No original or cropped images are saved to the server's disk. The resulting image is streamed directly back to the user's browser. When the application is self-hosted, images are processed locally and do not leave the user's machine.
 
-## 💻 Development
-To contribute to this project:
-
-1.  Fork the repository on GitHub.
-2.  Create a feature branch: `git checkout -b feature/your-amazing-feature`
-3.  Make your changes and commit them: `git commit -m 'Add your amazing feature'`
-4.  Push your changes to your fork: `git push origin feature/your-amazing-feature`
-5.  Open a Pull Request on the original repository.
-
 ## 📋 Requirements
 - Python 3.8+
 - Docker and Docker Compose (for containerized deployment)
