@@ -15,7 +15,6 @@
 
 ## 🚀 Features
 - **Fast In-Memory Processing**: Images are processed in memory without saving to disk
-- **Mobile-Friendly UI**: Responsive design that works on all devices
 - **Drag & Drop Interface**: Easy to use with drag and drop or file selection
 - **Instant Preview**: See the results immediately before downloading
 - **Size Comparison**: View the original and cropped dimensions with saved space calculation
