@@ -1,10 +1,19 @@
 class ThemeManager {
     constructor() {
         this.htmlElement = document.getElementById('htmlRoot');
-        this.themeSystemBtn = document.getElementById('theme-system');
-        this.themeLightBtn = document.getElementById('theme-light');
-        this.themeDarkBtn = document.getElementById('theme-dark');
-        this.buttons = [this.themeSystemBtn, this.themeLightBtn, this.themeDarkBtn];
+        this.themeToggleBtn = document.getElementById('theme-toggle');
+        this.themeIcon = document.getElementById('theme-icon');
+        this.themes = ['system', 'light', 'dark'];
+        this.themeTitles = {
+            system: 'Switch to Light Theme',
+            light: 'Switch to Dark Theme',
+            dark: 'Switch to System Theme',
+        };
+        this.themeIcons = {
+            system: 'fa-desktop',
+            light: 'fa-sun',
+            dark: 'fa-moon',
+        };
 
         this.prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -12,7 +21,7 @@ class ThemeManager {
     }
 
     getStoredTheme() {
-        return localStorage.getItem('theme');
+        return localStorage.getItem('theme') || 'system';
     }
 
     setStoredTheme(theme) {
@@ -31,41 +40,42 @@ class ThemeManager {
             this.htmlElement.classList.remove('dark');
         }
 
-        this.updateButtonStates(theme);
+        this.updateButtonState(theme);
 
-        document.dispatchEvent(new CustomEvent('themeChanged', {
-            detail: { theme: themeToApply }
-        }));
+        document.dispatchEvent(
+            new CustomEvent('themeChanged', {
+                detail: { theme: themeToApply },
+            }),
+        );
     }
 
-    updateButtonStates(activeTheme) {
-        this.buttons.forEach(button => {
-            if (button) {
-                button.classList.remove('active');
-                if (button.id === `theme-${activeTheme}`) {
-                    button.classList.add('active');
-                }
-            }
-        });
+    updateButtonState(currentTheme) {
+        if (this.themeToggleBtn && this.themeIcon) {
+            const currentIcon = this.themeIcons[currentTheme];
+            const nextThemeIndex =
+                (this.themes.indexOf(currentTheme) + 1) % this.themes.length;
+            const nextTheme = this.themes[nextThemeIndex];
+
+            this.themeIcon.className = `fas ${currentIcon}`;
+            this.themeToggleBtn.title = this.themeTitles[currentTheme];
+        }
+    }
+
+    cycleTheme() {
+        const currentTheme = this.getStoredTheme();
+        const nextThemeIndex =
+            (this.themes.indexOf(currentTheme) + 1) % this.themes.length;
+        const nextTheme = this.themes[nextThemeIndex];
+        this.setStoredTheme(nextTheme);
+        this.applyTheme(nextTheme);
     }
 
     init() {
-        const storedTheme = this.getStoredTheme() || 'system';
+        const storedTheme = this.getStoredTheme();
         this.applyTheme(storedTheme);
 
-        this.themeSystemBtn?.addEventListener('click', () => {
-            this.setStoredTheme('system');
-            this.applyTheme('system');
-        });
-
-        this.themeLightBtn?.addEventListener('click', () => {
-            this.setStoredTheme('light');
-            this.applyTheme('light');
-        });
-
-        this.themeDarkBtn?.addEventListener('click', () => {
-            this.setStoredTheme('dark');
-            this.applyTheme('dark');
+        this.themeToggleBtn?.addEventListener('click', () => {
+            this.cycleTheme();
         });
 
         this.prefersDark.addEventListener('change', () => {
@@ -76,10 +86,12 @@ class ThemeManager {
     }
 
     getCurrentTheme() {
-        const storedTheme = this.getStoredTheme() || 'system';
-        return storedTheme === 'system' ?
-            (this.prefersDark.matches ? 'dark' : 'light') :
-            storedTheme;
+        const storedTheme = this.getStoredTheme();
+        return storedTheme === 'system'
+            ? this.prefersDark.matches
+                ? 'dark'
+                : 'light'
+            : storedTheme;
     }
 }
 

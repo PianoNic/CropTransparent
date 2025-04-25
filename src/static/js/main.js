@@ -88,7 +88,7 @@ class ImageProcessor {
         try {
             const response = await fetch('/process', {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
 
             const result = await response.json();
@@ -138,7 +138,7 @@ class ImageProcessor {
                 },
                 body: JSON.stringify({
                     image: this.processedImage,
-                    filename: this.processedFilename
+                    filename: this.processedFilename,
                 }),
             });
 
@@ -162,6 +162,11 @@ class ImageProcessor {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    const currentYearElement = document.getElementById('currentYear');
+    if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+    } else {
+        console.warn('Footer element with ID "currentYear" not found.');
+    }
     window.imageProcessor = new ImageProcessor();
 });

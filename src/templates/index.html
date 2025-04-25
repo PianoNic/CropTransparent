@@ -17,8 +17,15 @@
 </head>
 
 <body
-    class="bg-primary text-text-primary flex flex-col h-screen overflow-hidden transition-colors duration-300 ease-in-out">
-    <div class="flex-grow overflow-auto py-4 px-4 md:py-6 flex flex-row items-center">
+    class="bg-primary text-text-primary flex flex-col min-h-screen transition-colors duration-300 ease-in-out">
+
+    <div class="theme-toggle-container">
+        <button id="theme-toggle" class="theme-toggle-button" title="Toggle Theme">
+            <i id="theme-icon" class="fas fa-desktop"></i>
+        </button>
+    </div>
+
+    <div class="flex-grow overflow-auto py-4 px-4 md:py-6 flex flex-col items-center justify-center main-content-padding">
         <div class="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-6">
             <div class="text-center mb-4 md:mb-6">
                 <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Transparent Image Cropper</h1>
@@ -122,7 +129,7 @@
         </div>
     </div>
 
-    <footer class="footer bg-secondary border-t border-border-primary mt-2 transition-colors duration-300 ease-in-out">
+    <footer class="footer bg-secondary border-t border-border-primary transition-colors duration-300 ease-in-out">
         <div class="footer-links text-xs md:text-sm">
             <a href="https://github.com/Pianonic/CropTransparent" class="footer-link">CropTransparent</a>
             <span class="footer-separator">•</span>
@@ -140,17 +147,6 @@
             <span class="footer-text" id="environment">loading...</span>
             <span class="footer-separator">•</span>
             <a href="#" class="footer-link footer-version" target="_blank" id="version">loading...</a>
-        </div>
-        <div class="theme-switcher mt-2 flex justify-center items-center space-x-2">
-            <button id="theme-system" class="theme-button" title="System Theme">
-                <i class="fas fa-desktop"></i>
-            </button>
-            <button id="theme-light" class="theme-button" title="Light Theme">
-                <i class="fas fa-sun"></i>
-            </button>
-            <button id="theme-dark" class="theme-button" title="Dark Theme">
-                <i class="fas fa-moon"></i>
-            </button>
         </div>
     </footer>
 </body>
