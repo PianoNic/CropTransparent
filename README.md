@@ -1,6 +1,6 @@
 # <p align="center">CropTransparent</p>
 <p align="center">
-  <img src="assets/CropTransparentBorder.png" width="200" alt="CropTransparent Logo">
+  <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/CropTransparentBorder.png" width="200" alt="CropTransparent Logo">
 </p>
 <p align="center">
   <strong>A modern, lightweight web application for automatically cropping transparent areas from PNG, GIF, and WEBP images.</strong>
@@ -22,23 +22,81 @@
 
 ## 📸 Screenshots (Light and Darkmode)
 <p align="center">
-  <img src="/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/><br/>
-  <img src="/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
+  <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/><br/>
+  <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
 </p>
 
 ## 📦 Installation
 
 ### Using Docker (Recommended)
 
+#### Option 1: Pull and Run a Pre-built Image
+You can pull the latest pre-built image from Docker Hub or GitHub Container Registry.
+
+**Docker Hub:**
 ```bash
-# Clone the repository
+docker pull pianonic/croptransparent:latest
+```
+
+**GitHub Container Registry:**
+```bash
+docker pull ghcr.io/pianonic/croptransparent:latest
+```
+
+Then, run the container:
+```bash
+docker run -d -p 3784:5000 --name croptransparent pianonic/croptransparent:latest
+```
+The application will be available at [http://localhost:3784](http://localhost:3784).
+
+#### Option 2: Build and Run with Docker Compose
+This method builds the image locally from the source code.
+
+**1. Clone the repository:**
+```bash
 git clone https://github.com/Pianonic/CropTransparent.git
 cd CropTransparent
+```
 
-# Start with Docker Compose
+**2. Start with Docker Compose:**
+```bash
 docker compose up -d
 ```
-The application will be available at [http://localhost:3784](http://localhost:3784)
+The application will be available at [http://localhost:3784](http://localhost:3784).
+
+A `docker-compose.yml` file like this is used:
+```yaml
+# docker-compose.yml
+version: "3.8"
+
+services:
+  croptransparent:
+    build: .
+    image: pianonic/croptransparent
+    ports:
+      - "3784:5000"
+    restart: unless-stopped
+```
+
+The container is built using a `Dockerfile`:
+```dockerfile
+# Dockerfile
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "wsgi.py"]
+```
 
 ### Manual Installation
 
@@ -93,7 +151,7 @@ User privacy is prioritized. Uploaded images are processed on the server **entir
 
 ## 📜 License
 This project is licensed under the MIT License.
-See the [LICENSE](LICENSE) file for more details.
+See the [LICENSE](https://github.com/Pianonic/CropTransparent/blob/main/LICENSE) file for more details.
 
 ---
 <p align="center">Made with ❤️ by <a href="https://github.com/Pianonic">Pianonic</a></p>
