@@ -1,4 +1,4 @@
-# <p align="center">CropTransparent</p>
+# <p align="center">CropTransparent</p> 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/CropTransparentBorder.png" width="200" alt="CropTransparent Logo">
 </p>
