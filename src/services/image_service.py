@@ -3,51 +3,123 @@ import numpy as np
 import io
 
 def crop_transparent_image(image_data):
-    """
-    Crops transparent areas from an image.
-    
-    Args:
-        image_data (bytes): The image data as bytes
-        
-    Returns:
-        tuple: (BytesIO object of cropped image, original size tuple, cropped size tuple)
-    """
-    # Load image from binary data
+    """Crops transparent areas from an image."""
     img = Image.open(io.BytesIO(image_data))
     
-    # Convert to RGBA if it's not already
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
     
-    # Get the alpha channel
     alpha = np.array(img.getchannel('A'))
-    
-    # Find the non-transparent pixels
     non_transparent = np.where(alpha > 0)
     
     if len(non_transparent[0]) > 0:
-        # Find the bounding box
         top = min(non_transparent[0])
         bottom = max(non_transparent[0])
         left = min(non_transparent[1])
         right = max(non_transparent[1])
         
-        # Crop the image
         cropped = img.crop((left, top, right + 1, bottom + 1))
-        
-        # Get metadata
         original_size = img.size
         cropped_size = cropped.size
         
-        # Save to memory buffer
         output = io.BytesIO()
         cropped.save(output, format=img.format if img.format else 'PNG')
         output.seek(0)
         
         return output, original_size, cropped_size
     else:
-        # Image is entirely transparent
         output = io.BytesIO()
         img.save(output, format=img.format if img.format else 'PNG')
         output.seek(0)
         return output, img.size, img.size
+
+def crop_by_background_color(image_data, threshold=30, corner_offset=5):
+    """Crops background areas based on corner color sampling."""
+    img = Image.open(io.BytesIO(image_data))
+    
+    if img.mode not in ['RGB', 'RGBA']:
+        img = img.convert('RGB')
+    
+    width, height = img.size
+    corner_colors = []
+    offset = min(corner_offset, width//4, height//4)
+    
+    corners = [
+        (offset, offset),
+        (width - offset - 1, offset),
+        (offset, height - offset - 1),
+        (width - offset - 1, height - offset - 1)
+    ]
+    
+    for x, y in corners:
+        if img.mode == 'RGBA':
+            r, g, b, a = img.getpixel((x, y))
+            corner_colors.append((r, g, b))
+        else:
+            corner_colors.append(img.getpixel((x, y)))
+    
+    avg_r = sum(color[0] for color in corner_colors) // len(corner_colors)
+    avg_g = sum(color[1] for color in corner_colors) // len(corner_colors)
+    avg_b = sum(color[2] for color in corner_colors) // len(corner_colors)
+    background_color = (avg_r, avg_g, avg_b)
+    
+    img_array = np.array(img)
+    if img.mode == 'RGBA':
+        img_rgb = img_array[:, :, :3]
+    else:
+        img_rgb = img_array
+    
+    # Vectorized color distance calculation
+    bg_color_array = np.array(background_color)
+    diff = img_rgb.astype(np.float32) - bg_color_array
+    distances = np.sqrt(np.sum(diff**2, axis=2))
+    mask = distances > threshold
+    
+    non_bg_coords = np.where(mask)
+    
+    if len(non_bg_coords[0]) > 0:
+        top = min(non_bg_coords[0])
+        bottom = max(non_bg_coords[0])
+        left = min(non_bg_coords[1])
+        right = max(non_bg_coords[1])
+        
+        cropped = img.crop((left, top, right + 1, bottom + 1))
+        original_size = img.size
+        cropped_size = cropped.size
+        
+        output = io.BytesIO()
+        cropped.save(output, format=img.format if img.format else 'PNG')
+        output.seek(0)
+        
+        return output, original_size, cropped_size, background_color
+    else:
+        output = io.BytesIO()
+        img.save(output, format=img.format if img.format else 'PNG')
+        output.seek(0)
+        return output, img.size, img.size, background_color
+
+def auto_crop_image(image_data, threshold=30, corner_offset=5):
+    """Automatically chooses between transparent or color background cropping."""
+    img = Image.open(io.BytesIO(image_data))
+    
+    has_alpha = img.mode in ['RGBA', 'LA'] or 'transparency' in img.info
+    
+    if has_alpha:
+        if img.mode != 'RGBA':
+            img_rgba = img.convert('RGBA')
+        else:
+            img_rgba = img
+        
+        alpha = np.array(img_rgba.getchannel('A'))
+        unique_alpha = np.unique(alpha)
+        has_meaningful_transparency = len(unique_alpha) > 1 and np.min(alpha) < 255
+        has_transparent_pixels = np.any(alpha == 0)
+        
+        if has_meaningful_transparency or has_transparent_pixels:
+            output, original_size, cropped_size = crop_transparent_image(image_data)
+            return output, original_size, cropped_size, "transparent", None
+    
+    output, original_size, cropped_size, background_color = crop_by_background_color(
+        image_data, threshold, corner_offset
+    )
+    return output, original_size, cropped_size, "color_background", background_color
