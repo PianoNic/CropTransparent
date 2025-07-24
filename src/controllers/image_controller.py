@@ -1,5 +1,5 @@
 from flask import Flask, request, send_file, render_template, jsonify
-from src.services.image_service import crop_transparent_image
+from src.services.image_service import auto_crop_image
 import base64
 import io
 import os
@@ -33,11 +33,9 @@ def register_routes(app):
             return jsonify({"error": "No selected file"}), 400
         
         try:
-            # Process in memory
             image_data = file.read()
-            output_buffer, original_size, cropped_size = crop_transparent_image(image_data)
+            output_buffer, original_size, cropped_size, crop_method, background_info = auto_crop_image(image_data)
             
-            # Convert to base64 for preview
             encoded = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
             output_buffer.seek(0)
             
@@ -46,13 +44,19 @@ def register_routes(app):
             if extension not in ['png', 'gif', 'webp']:
                 extension = 'png'
             
-            return jsonify({
+            response_data = {
                 "success": True, 
                 "image": f"data:image/{extension};base64,{encoded}",
                 "filename": f"cropped_{filename}",
                 "original_size": f"{original_size[0]}x{original_size[1]}",
-                "cropped_size": f"{cropped_size[0]}x{cropped_size[1]}"
-            })
+                "cropped_size": f"{cropped_size[0]}x{cropped_size[1]}",
+                "crop_method": crop_method
+            }
+            
+            if background_info:
+                response_data["background_color"] = background_info
+            
+            return jsonify(response_data)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -63,15 +67,12 @@ def register_routes(app):
             if not data or 'image' not in data or 'filename' not in data:
                 return jsonify({"error": "Missing data"}), 400
             
-            # Extract base64 data
             image_data = data['image'].split(',')[1]
             image_binary = base64.b64decode(image_data)
             
-            # Create a BytesIO object
             output = io.BytesIO(image_binary)
             output.seek(0)
             
-            # Send file directly from memory
             return send_file(
                 output,
                 download_name=data['filename'],
