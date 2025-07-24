@@ -28,10 +28,9 @@
   --red-dark-hover: #ef4444;
   --red-bg-subtle-light: #f8d7da;
   --red-bg-subtle-dark: #5c2a2e;
-
-  --accent-active: var(--blue-light);
-  --accent-active-hover: var(--blue-light-hover);
-  --accent-active-bg-subtle: var(--blue-bg-subtle-light);
+  --accent-active: var(--red-light);
+  --accent-active-hover: var(--red-light-hover);
+  --accent-active-bg-subtle: var(--red-bg-subtle-light);
   --accent-active-text: var(--text-on-accent-light);
 
   --border-dropzone-hover: var(--accent-active);
