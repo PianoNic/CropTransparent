@@ -8,15 +8,15 @@ def register_routes(app):
     @app.route('/')
     def index():
         return render_template('index.html')
-        
+    
     @app.route('/about')
     def about():
         return render_template('about.html')
     
     @app.route('/api/app-info')
     def app_info():
-        environment = os.environ.get('FLASK_ENV', 'unkown environment')
-        version = os.environ.get('APP_VERSION', 'unkown version')
+        environment = os.environ.get('FLASK_ENV', 'unknown environment')
+        version = os.environ.get('APP_VERSION', 'unknown version')
         
         return jsonify({
             "environment": environment,
