@@ -1,0 +1,24 @@
+# Release Drafter config for PianoNicsMusic
+name-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+  - title: '✨ Enhancements'
+    labels:
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+
+no-changes-template: 'No changes in this release.'
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
