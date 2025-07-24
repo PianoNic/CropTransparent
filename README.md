@@ -22,8 +22,8 @@
 
 ## 📸 Screenshots (Light and Darkmode)
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/><br/>
-  <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
+  <img src="/assets/showcase/home.png" width="800" alt="CropTransparent Homepage"><br/><br/>
+  <img src="/assets/showcase/processed.png" width="800" alt="CropTransparent Processed Page"><br/>
 </p>
 
 ## 📦 Installation
