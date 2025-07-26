@@ -7,7 +7,7 @@
   Built with Flask and containerized with Docker for easy deployment.
 </p>
 <p align="center">
-  <a href="https://github.com/Pianonic/CropTransparent"><img src="https://badgetrack.pianonic.ch/badge?url=https://github.com/PianoNic/CropTransparent&label=visitors&color=f87171&style=flat&logo=github" alt="Visitor badge"/></a>
+  <a href="https://github.com/Pianonic/CropTransparent"><img src="https://badgetrack.pianonic.ch/badge?tag=crop-transparent&label=visits&color=237e61&style=flat" alt="visits" /></a>
   <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Pianonic/CropTransparent?color=f87171&label=License"/></a>
   <a href="https://github.com/Pianonic/CropTransparent/releases"><img src="https://img.shields.io/github/v/release/Pianonic/CropTransparent?include_prereleases&color=f87171&label=Latest%20Release"/></a>
   <a href="https://github.com/Pianonic/CropTransparent?tab=readme-ov-file#-installation"><img src="https://img.shields.io/badge/Selfhost-Instructions-f87171.svg"/></a>
