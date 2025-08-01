@@ -1,3 +1,6 @@
+# This compose file is meant for developement purposes.
+# Please use the deployment steps provided in the readme for production use.
+
 services:
   crop-transparent:
     container_name: crop-transparent

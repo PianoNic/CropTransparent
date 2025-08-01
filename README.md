@@ -45,58 +45,27 @@ docker pull ghcr.io/pianonic/croptransparent:latest
 
 Then, run the container:
 ```bash
-docker run -d -p 3784:5000 --name croptransparent pianonic/croptransparent:latest
+docker run -d -p 5000:5000 --name croptransparent pianonic/croptransparent:latest
 ```
-The application will be available at [http://localhost:3784](http://localhost:3784).
+The application will be available at [http://localhost:5000](http://localhost:5000).
 
-#### Option 2: Build and Run with Docker Compose
-This method builds the image locally from the source code.
-
-**1. Clone the repository:**
-```bash
-git clone https://github.com/Pianonic/CropTransparent.git
-cd CropTransparent
-```
-
-**2. Start with Docker Compose:**
-```bash
-docker compose up -d
-```
-The application will be available at [http://localhost:3784](http://localhost:3784).
-
-A `docker-compose.yml` file like this is used:
+#### Option 2: Run with Docker Compose
+**1. Create a `compose.yaml` file:**  
+Use your favorite editor to create a `compose.yaml` file and paste this into it:
 ```yaml
-# docker-compose.yml
-version: "3.8"
-
 services:
   croptransparent:
-    build: .
-    image: pianonic/croptransparent
+    image: ghcr.io/pianonic/croptransparent:latest
     ports:
-      - "3784:5000"
+      - "5000:5000"
     restart: unless-stopped
 ```
 
-The container is built using a `Dockerfile`:
-```dockerfile
-# Dockerfile
-FROM python:3.11-slim
-
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-
-CMD ["python", "wsgi.py"]
+**2. Start it:**
+```bash
+docker compose up -d
 ```
+The application will be available at [http://localhost:5000](http://localhost:5000).
 
 ### Manual Installation
 
