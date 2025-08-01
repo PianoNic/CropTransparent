@@ -55,7 +55,8 @@ Use your favorite editor to create a `compose.yaml` file and paste this into it:
 ```yaml
 services:
   croptransparent:
-    image: ghcr.io/pianonic/croptransparent:latest
+    image: pianonic/croptransparent:latest # Uses the image from Docker Hub
+    # image: ghcr.io/pianonic/croptransparent:latest # Uses the image from GiitHub Container Registry
     ports:
       - "5000:5000"
     restart: unless-stopped
