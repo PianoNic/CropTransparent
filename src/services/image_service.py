@@ -1,8 +1,9 @@
 from PIL import Image
+from PIL.Image import Image as PILImage
 import numpy as np
 import io
 
-def crop_transparent_image(image_data):
+def crop_transparent_image(image_data, output_format='PNG'):
     """Crops transparent areas from an image."""
     img = Image.open(io.BytesIO(image_data))
     
@@ -22,20 +23,22 @@ def crop_transparent_image(image_data):
         original_size = img.size
         cropped_size = cropped.size
         
+        # Ensure PNG format for transparent images
         output = io.BytesIO()
-        cropped.save(output, format=img.format if img.format else 'PNG')
+        cropped.save(output, format='PNG')
         output.seek(0)
         
-        return output, original_size, cropped_size
+        return output, original_size, cropped_size, 'PNG'
     else:
         output = io.BytesIO()
-        img.save(output, format=img.format if img.format else 'PNG')
+        img.save(output, format='PNG')
         output.seek(0)
-        return output, img.size, img.size
+        return output, img.size, img.size, 'PNG'
 
-def crop_by_background_color(image_data, threshold=30, corner_offset=5):
+def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_format=None):
     """Crops background areas based on corner color sampling."""
     img = Image.open(io.BytesIO(image_data))
+    original_format = img.format
     
     if img.mode not in ['RGB', 'RGBA']:
         img = img.convert('RGB')
@@ -87,20 +90,62 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5):
         original_size = img.size
         cropped_size = cropped.size
         
+        # Determine output format
+        if output_format is None:
+            output_format = original_format if original_format in ['JPEG', 'PNG', 'WEBP', 'GIF'] else 'PNG'
+        
+        # Convert to RGB for JPEG format
+        if output_format == 'JPEG' and cropped.mode in ['RGBA', 'LA']:
+            # Create a white background for JPEG
+            white_bg = Image.new('RGB', cropped.size)
+            # Create a white background using PIL's putdata
+            white_pixels = [(255, 255, 255)] * (cropped.size[0] * cropped.size[1])
+            white_bg.putdata(white_pixels)
+            
+            if cropped.mode == 'RGBA':
+                white_bg.paste(cropped, mask=cropped.split()[-1])  # Use alpha channel as mask
+            else:
+                white_bg.paste(cropped)
+            cropped = white_bg
+        
         output = io.BytesIO()
-        cropped.save(output, format=img.format if img.format else 'PNG')
+        save_kwargs = {'format': output_format}
+        if output_format == 'JPEG':
+            save_kwargs['quality'] = 95
+            save_kwargs['optimize'] = True
+        
+        cropped.save(output, **save_kwargs)
         output.seek(0)
         
-        return output, original_size, cropped_size, background_color
+        return output, original_size, cropped_size, background_color, output_format
     else:
+        # Convert to RGB for JPEG format
+        if output_format == 'JPEG' and img.mode in ['RGBA', 'LA']:
+            rgb_img = Image.new('RGB', img.size)
+            # Create white background using putdata
+            white_pixels = [(255, 255, 255)] * (img.size[0] * img.size[1])
+            rgb_img.putdata(white_pixels)
+            
+            if img.mode == 'RGBA':
+                rgb_img.paste(img, mask=img.split()[-1])
+            else:
+                rgb_img.paste(img)
+            img = rgb_img
+        
         output = io.BytesIO()
-        img.save(output, format=img.format if img.format else 'PNG')
+        save_kwargs = {'format': output_format if output_format else (original_format if original_format in ['JPEG', 'PNG', 'WEBP', 'GIF'] else 'PNG')}
+        if output_format == 'JPEG':
+            save_kwargs['quality'] = 95
+            save_kwargs['optimize'] = True
+        
+        img.save(output, **save_kwargs)
         output.seek(0)
-        return output, img.size, img.size, background_color
+        return output, img.size, img.size, background_color, save_kwargs['format']
 
 def auto_crop_image(image_data, threshold=30, corner_offset=5):
     """Automatically chooses between transparent or color background cropping."""
     img = Image.open(io.BytesIO(image_data))
+    original_format = img.format
     
     has_alpha = img.mode in ['RGBA', 'LA'] or 'transparency' in img.info
     
@@ -116,10 +161,13 @@ def auto_crop_image(image_data, threshold=30, corner_offset=5):
         has_transparent_pixels = np.any(alpha == 0)
         
         if has_meaningful_transparency or has_transparent_pixels:
-            output, original_size, cropped_size = crop_transparent_image(image_data)
-            return output, original_size, cropped_size, "transparent", None
+            output, original_size, cropped_size, output_format = crop_transparent_image(image_data)
+            return output, original_size, cropped_size, "transparent", None, output_format
     
-    output, original_size, cropped_size, background_color = crop_by_background_color(
-        image_data, threshold, corner_offset
+    # Determine output format for non-transparent images
+    output_format = original_format if original_format in ['JPEG', 'PNG', 'WEBP', 'GIF'] else 'PNG'
+    
+    output, original_size, cropped_size, background_color, final_format = crop_by_background_color(
+        image_data, threshold, corner_offset, output_format
     )
-    return output, original_size, cropped_size, "color_background", background_color
+    return output, original_size, cropped_size, "color_background", background_color, final_format

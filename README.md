@@ -3,8 +3,8 @@
   <img src="https://raw.githubusercontent.com/Pianonic/CropTransparent/main/assets/CropTransparentBorder.png" width="200" alt="CropTransparent Logo">
 </p>
 <p align="center">
-  <strong>A modern, lightweight web application for automatically cropping transparent areas from PNG, GIF, and WEBP images.</strong>
-  Built with Flask and containerized with Docker for easy deployment.
+  <strong>A lightweight web app for automatically cropping images - removes transparent areas and uniform backgrounds.</strong>
+  Built with Flask and Docker.
 </p>
 <p align="center">
   <a href="https://github.com/Pianonic/CropTransparent"><img src="https://badgetrack.pianonic.ch/badge?tag=crop-transparent&label=visits&color=f87171&style=flat" alt="visits" /></a>
@@ -14,11 +14,12 @@
 </p>
 
 ## 🚀 Features
-- **Fast In-Memory Processing**: Images are processed in memory without saving to disk
-- **Drag & Drop Interface**: Easy to use with drag and drop or file selection
-- **Instant Preview**: See the results immediately before downloading
-- **Size Comparison**: View the original and cropped dimensions with saved space calculation
-- **Docker Ready**: Easy deployment with Docker and Docker Compose
+- **Smart Cropping**: Auto-crops transparency (PNG, GIF, WEBP) or uniform backgrounds (JPEG)
+- **Multiple Formats**: PNG, JPEG, GIF, WEBP support
+- **Fast Processing**: In-memory processing, no disk storage
+- **Drag & Drop**: Simple file upload interface
+- **Format Preservation**: JPEG stays JPEG, PNG stays PNG
+- **Docker Ready**: Easy deployment
 
 ## 📸 Screenshots (Light and Darkmode)
 <p align="center">
@@ -56,7 +57,7 @@ Use your favorite editor to create a `compose.yaml` file and paste this into it:
 services:
   croptransparent:
     image: pianonic/croptransparent:latest # Uses the image from Docker Hub
-    # image: ghcr.io/pianonic/croptransparent:latest # Uses the image from GiitHub Container Registry
+    # image: ghcr.io/pianonic/croptransparent:latest # Uses the image from GitHub Container Registry
     ports:
       - "5000:5000"
     restart: unless-stopped
@@ -91,33 +92,22 @@ python wsgi.py
 The application will be available at [http://localhost:5000](http://localhost:5000) (or the port configured in `wsgi.py`).
 
 ## 🛠️ Usage
-1.  Upload a transparent image (PNG, GIF, WEBP) by dragging and dropping or using the file browser.
-2.  The application automatically finds the bounding box of non-transparent pixels and crops the image.
-3.  Preview the cropped result and compare its dimensions to the original.
-4.  Download the optimized image with a single click.
+1. Upload an image (drag & drop or browse)
+2. App automatically detects and crops transparent areas or uniform backgrounds
+3. Preview and download the cropped result
 
 ## ⚙️ Technical Details
 
 ### Image Processing
-The application uses the Python Imaging Library (PIL/Pillow) and NumPy to:
-1.  Convert images to RGBA format if needed.
-2.  Extract the alpha channel.
-3.  Find the bounding box of non-transparent pixels using NumPy.
-4.  Crop the image to this bounding box using Pillow.
-5.  Encode the result and deliver it directly to the user's browser without saving to disk.
-
-### Security
-User privacy is prioritized. Uploaded images are processed on the server **entirely in memory**. No original or cropped images are saved to the server's disk. The resulting image is streamed directly back to the user's browser. When the application is self-hosted, images are processed locally and do not leave the user's machine.
+Uses PIL/Pillow and NumPy for smart cropping:
+- **Transparent images**: Crops based on alpha channel
+- **Opaque images**: Detects uniform background from corners and crops
+- **Security**: All processing in memory, no files saved to disk
 
 ## 📋 Requirements
 - Python 3.8+
-- Docker and Docker Compose (for containerized deployment)
-- Dependencies listed in `requirements.txt`:
-  - Flask
-  - Pillow
-  - NumPy
-  - Waitress (for production WSGI serving)
-  - Werkzeug (Flask dependency)
+- Docker (for containerized deployment)
+- Dependencies: Flask, Pillow, NumPy, Waitress
 
 ## 📜 License
 This project is licensed under the MIT License.
