@@ -1,4 +1,4 @@
-# This compose file is meant for developement purposes.
+# This compose file is meant for development purposes.
 # Please use the deployment steps provided in the readme for production use.
 
 services:
