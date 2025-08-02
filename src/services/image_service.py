@@ -118,10 +118,7 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_f
     else:
         # Convert to RGB for JPEG format
         if output_format == 'JPEG' and img.mode in ['RGBA', 'LA']:
-            rgb_img = Image.new('RGB', img.size)
-            # Create white background using putdata
-            white_pixels = [(255, 255, 255)] * (img.size[0] * img.size[1])
-            rgb_img.putdata(white_pixels)
+            rgb_img = Image.new('RGB', img.size, 255)
             
             if img.mode == 'RGBA':
                 rgb_img.paste(img, mask=img.split()[-1])
