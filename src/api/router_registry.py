@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import FastAPI, APIRouter
 import colorlog
 
-# Configure Flask/Uvicorn-style colored logging
+# Configure FastAPI/Uvicorn-style colored logging
 handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter(
     '%(log_color)sINFO%(reset)s:     %(message)s',
