@@ -105,9 +105,9 @@ Uses PIL/Pillow and NumPy for smart cropping:
 - **Security**: All processing in memory, no files saved to disk
 
 ## 📋 Requirements
-- Python 3.8+
-- Docker (for containerized deployment)
-- Dependencies: Flask, Pillow, NumPy, Waitress
+- Python 3.13+
+- Docker
+- Dependencies: Shown in [requirements.txt](./requirements.txt)
 
 ## 📜 License
 This project is licensed under the MIT License.
