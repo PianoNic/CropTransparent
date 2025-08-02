@@ -1,43 +1,11 @@
-from fastapi import APIRouter, Request, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse, HTMLResponse
-from src.services.image_service import auto_crop_image
 import base64
 import io
-import os
+from fastapi import File, HTTPException, UploadFile
+from fastapi.responses import JSONResponse, StreamingResponse
+from src.application.services import image_service
+from fastapi import APIRouter
 
 router = APIRouter()
-
-@router.get("/", response_class=HTMLResponse, include_in_schema=False)
-def index(request: Request):
-    templates = request.app.state.templates
-    environment = os.environ.get('FLASK_ENV', 'unknown')
-    version = os.environ.get('APP_VERSION', 'unknown')
-    version_url = f"https://github.com/Pianonic/CropTransparent/releases/tag/{version}"
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "environment": environment,
-        "version": version,
-        "version_url": version_url
-    })
-
-@router.get("/about", response_class=HTMLResponse, include_in_schema=False)
-def about(request: Request):
-    templates = request.app.state.templates
-    environment = os.environ.get('FLASK_ENV', 'unknown')
-    version = os.environ.get('APP_VERSION', 'unknown')
-    version_url = f"https://github.com/Pianonic/CropTransparent/releases/tag/{version}"
-    return templates.TemplateResponse("about.html", {
-        "request": request,
-        "environment": environment,
-        "version": version,
-        "version_url": version_url
-    })
-
-@router.get("/api/app-info", tags=["App Info"])
-def app_info():
-    environment = os.environ.get('FLASK_ENV', 'unknown environment')
-    version = os.environ.get('APP_VERSION', 'unknown version')
-    return {"environment": environment, "version": version}
 
 @router.post("/api/process", tags=["Image Processing"])
 async def process_image(file: UploadFile = File(...)):
@@ -47,7 +15,7 @@ async def process_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="No selected file")
     try:
         image_data = await file.read()
-        output_buffer, original_size, cropped_size, crop_method, background_info, output_format = auto_crop_image(image_data)
+        output_buffer, original_size, cropped_size, crop_method, background_info, output_format = image_service.auto_crop_image(image_data)
         encoded = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
         output_buffer.seek(0)
         filename = file.filename or 'image.png'
@@ -109,6 +77,3 @@ async def download_image(data: dict):
         })
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-def register_routes(app):
-    app.include_router(router)

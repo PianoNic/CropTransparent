@@ -1,5 +1,4 @@
 from PIL import Image
-from PIL.Image import Image as PILImage
 import numpy as np
 import io
 
