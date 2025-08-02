@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Smart Image Cropper</title>
-    <script src="{{ url_for('static', filename='js/theme-init.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/theme-init.js') }}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <script src="{{ url_for('static', filename='js/theme.js') }}" defer></script>
-    <script src="{{ url_for('static', filename='js/app-info.js') }}" defer></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/favicon.ico') }}">
+    <script src="{{ url_for('static', path='/js/theme.js') }}" defer></script>
+    <script src="{{ url_for('static', path='/js/app-info.js') }}" defer></script>
 </head>
 
 <body
@@ -71,8 +71,10 @@
             <span class="footer-separator">•</span>
             <a href="/about" class="footer-link">About</a>
             <span class="footer-separator">•</span>
+            <a href="/docs" class="footer-link" target="_blank">API Docs</a>
+            <span class="footer-separator">•</span>
             <a href="https://github.com/Pianonic/CropTransparent" class="footer-link" target="_blank">
-                Open Source <i class="fab fa-github footer-github-icon"></i>
+                GitHub <i class="fab fa-github footer-github-icon"></i>
             </a>
             <span class="footer-separator">•</span>
             <span class="footer-text">CropTransparent &copy; <span id="currentYear">2025</span></span>
@@ -80,9 +82,9 @@
             <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE"
                 class="footer-link footer-text">MIT</a>
             <span class="footer-separator">•</span>
-            <span class="footer-text" id="environment">loading...</span>
+            <span class="footer-text">{{ environment }}</span>
             <span class="footer-separator">•</span>
-            <a href="#" class="footer-link footer-version" target="_blank" id="version">loading...</a>
+            <a href="{{ version_url }}" class="footer-link footer-version" target="_blank">{{ version }}</a>
         </div>
     </footer>
 </body>

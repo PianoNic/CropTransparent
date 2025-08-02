@@ -86,7 +86,7 @@ class ImageProcessor {
         formData.append('file', file);
 
         try {
-            const response = await fetch('/process', {
+            const response = await fetch('/api/process', {
                 method: 'POST',
                 body: formData,
             });
@@ -131,7 +131,7 @@ class ImageProcessor {
         if (!this.processedImage || !this.processedFilename) return;
 
         try {
-            const response = await fetch('/download', {
+            const response = await fetch('/api/download', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
