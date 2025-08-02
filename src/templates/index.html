@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transparent Image Cropper</title>
+    <title>Smart Image Cropper</title>
     <script src="{{ url_for('static', filename='js/theme-init.js') }}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
@@ -28,9 +28,8 @@
     <div class="flex-grow overflow-auto py-4 px-4 md:py-6 flex flex-col items-center justify-center main-content-padding">
         <div class="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-6">
             <div class="text-center mb-4 md:mb-6">
-                <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Transparent Image Cropper</h1>
-                <p class="text-sm md:text-base text-text-secondary">Automatically crop transparent areas from your
-                    images</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-text-heading mb-1 md:mb-2">Smart Image Cropper</h1>
+                <p class="text-sm md:text-base text-text-secondary">Auto-crop transparent areas and backgrounds</p>
             </div>
 
             <div class="bg-secondary rounded-lg shadow-lg p-4 md:p-6 transition-colors duration-300 ease-in-out">
@@ -47,13 +46,11 @@
                     <div class="mt-2 md:mt-3 text-center">
                         <h3 class="text-2xl md:text-3xl text-text-heading mb-1 md:mb-2">Upload Image</h3>
                         <div class="mt-1 md:mt-2">
-                            <p class="text-xs md:text-sm text-text-secondary">Drag and drop your image here or click to
-                                browse
-                            </p>
-                            <p class="text-xs text-text-tertiary mt-1">Supports PNG, GIF, WEBP with transparency</p>
+                            <p class="text-xs md:text-sm text-text-secondary">Drag and drop or click to browse</p>
+                            <p class="text-xs text-text-tertiary mt-1">PNG, JPEG, GIF, WEBP supported</p>
                         </div>
                     </div>
-                    <input type="file" id="fileInput" class="hidden" accept=".png,.gif,.webp">
+                    <input type="file" id="fileInput" class="hidden" accept=".png,.jpg,.jpeg,.gif,.webp">
                 </div>
 
                 <div id="loadingSection" class="hidden mt-4 text-center">

@@ -34,23 +34,47 @@ def register_routes(app):
         
         try:
             image_data = file.read()
-            output_buffer, original_size, cropped_size, crop_method, background_info = auto_crop_image(image_data)
+            output_buffer, original_size, cropped_size, crop_method, background_info, output_format = auto_crop_image(image_data)
             
             encoded = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
             output_buffer.seek(0)
             
-            filename = file.filename
-            extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'png'
-            if extension not in ['png', 'gif', 'webp']:
-                extension = 'png'
+            filename = file.filename or 'image.png'
+            original_extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'png'
+            
+            # Use the output format from the service, but map it to lowercase for consistency
+            if output_format:
+                extension = output_format.lower()
+                if extension == 'jpeg':
+                    extension = 'jpg'
+            else:
+                # Fallback logic
+                if original_extension not in ['png', 'gif', 'webp', 'jpg', 'jpeg']:
+                    extension = 'png'
+                else:
+                    extension = original_extension
+                    if extension == 'jpeg':
+                        extension = 'jpg'
+            
+            # Set proper MIME type
+            mime_type = 'png'
+            if extension == 'jpg':
+                mime_type = 'jpeg'
+            elif extension in ['gif', 'webp']:
+                mime_type = extension
+            
+            # Create output filename
+            base_name = filename.rsplit('.', 1)[0] if '.' in filename else filename
+            output_filename = f"cropped_{base_name}.{extension}"
             
             response_data = {
                 "success": True, 
-                "image": f"data:image/{extension};base64,{encoded}",
-                "filename": f"cropped_{filename}",
+                "image": f"data:image/{mime_type};base64,{encoded}",
+                "filename": output_filename,
                 "original_size": f"{original_size[0]}x{original_size[1]}",
                 "cropped_size": f"{cropped_size[0]}x{cropped_size[1]}",
-                "crop_method": crop_method
+                "crop_method": crop_method,
+                "output_format": extension
             }
             
             if background_info:
@@ -73,11 +97,25 @@ def register_routes(app):
             output = io.BytesIO(image_binary)
             output.seek(0)
             
+            # Determine MIME type from filename extension
+            filename = data['filename']
+            extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'png'
+            
+            mime_type_map = {
+                'png': 'image/png',
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'gif': 'image/gif',
+                'webp': 'image/webp'
+            }
+            
+            mime_type = mime_type_map.get(extension, 'image/png')
+            
             return send_file(
                 output,
-                download_name=data['filename'],
+                download_name=filename,
                 as_attachment=True,
-                mimetype='image/png'
+                mimetype=mime_type
             )
         except Exception as e:
             return jsonify({"error": str(e)}), 500
