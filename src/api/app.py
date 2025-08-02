@@ -5,6 +5,7 @@ from src.api.router_registry import router_registry
 from dotenv import load_dotenv
 import os
 import logging
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -15,12 +16,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Mount static files and templates
-static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+base_dir = Path(__file__).parent.parent
 
-templates_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "templates")
-templates = Jinja2Templates(directory=templates_dir)
+# Mount static files and templates using pathlib for cleaner paths
+static_dir = base_dir / "frontend"
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+templates_dir = base_dir / "frontend" / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
 app.state.templates = templates
 
 # Auto-register all controllers
