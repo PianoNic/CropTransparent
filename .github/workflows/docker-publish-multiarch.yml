@@ -63,8 +63,7 @@ jobs:
           context: .
           file: ./Dockerfile
           # Specify the platforms to build for
-          platforms: linux/amd64,linux/arm64 # Common platforms
-          # You can add more like: linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           push: true # Push the multi-arch manifest list
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

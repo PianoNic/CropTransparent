@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13.5-slim
 
 WORKDIR /app
 
@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "wsgi.py"]
+CMD ["python", "asgi.py"]
