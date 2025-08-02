@@ -97,10 +97,7 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_f
         # Convert to RGB for JPEG format
         if output_format == 'JPEG' and cropped.mode in ['RGBA', 'LA']:
             # Create a white background for JPEG
-            white_bg = Image.new('RGB', cropped.size)
-            # Create a white background using PIL's putdata
-            white_pixels = [(255, 255, 255)] * (cropped.size[0] * cropped.size[1])
-            white_bg.putdata(white_pixels)
+            white_bg = Image.new('RGB', cropped.size, 255)
             
             if cropped.mode == 'RGBA':
                 white_bg.paste(cropped, mask=cropped.split()[-1])  # Use alpha channel as mask
