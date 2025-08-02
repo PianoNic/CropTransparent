@@ -20,10 +20,10 @@ handler.setFormatter(colorlog.ColoredFormatter(
 ))
 
 logger = colorlog.getLogger(__name__)
-logger.addHandler(handler)
+# Add handler only if not already present to prevent duplicate logs
+if not any(isinstance(h, colorlog.StreamHandler) for h in logger.handlers):
+    logger.addHandler(handler)
 logger.setLevel(logging.INFO)
-logger.propagate = False  # Prevent duplicate logs
-
 class RouterRegistry:
     def __init__(self, controllers_path: str = "src.api.controllers"):
         self.controllers_path = controllers_path
