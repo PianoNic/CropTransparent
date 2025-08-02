@@ -96,14 +96,7 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_f
         
         # Convert to RGB for JPEG format
         if output_format == 'JPEG' and cropped.mode in ['RGBA', 'LA']:
-            # Create a white background for JPEG
-            white_bg = Image.new('RGB', cropped.size, 255)
-            
-            if cropped.mode == 'RGBA':
-                white_bg.paste(cropped, mask=cropped.split()[-1])  # Use alpha channel as mask
-            else:
-                white_bg.paste(cropped)
-            cropped = white_bg
+            cropped = composite_on_white(cropped)
         
         output = io.BytesIO()
         save_kwargs = {'format': output_format}
@@ -118,13 +111,7 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_f
     else:
         # Convert to RGB for JPEG format
         if output_format == 'JPEG' and img.mode in ['RGBA', 'LA']:
-            rgb_img = Image.new('RGB', img.size, 255)
-            
-            if img.mode == 'RGBA':
-                rgb_img.paste(img, mask=img.split()[-1])
-            else:
-                rgb_img.paste(img)
-            img = rgb_img
+            img = composite_on_white(img)
         
         output = io.BytesIO()
         save_kwargs = {'format': output_format if output_format else (original_format if original_format in ['JPEG', 'PNG', 'WEBP', 'GIF'] else 'PNG')}
@@ -135,6 +122,15 @@ def crop_by_background_color(image_data, threshold=30, corner_offset=5, output_f
         img.save(output, **save_kwargs)
         output.seek(0)
         return output, img.size, img.size, background_color, save_kwargs['format']
+
+def composite_on_white(img):
+    rgb_img = Image.new('RGB', img.size, 255)
+        
+    if img.mode == 'RGBA':
+        rgb_img.paste(img, mask=img.split()[-1])  # Use alpha channel as mask
+    else:
+        rgb_img.paste(img)
+    return rgb_img
 
 def auto_crop_image(image_data, threshold=30, corner_offset=5):
     """Automatically chooses between transparent or color background cropping."""
