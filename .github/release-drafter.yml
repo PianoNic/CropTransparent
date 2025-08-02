@@ -8,6 +8,9 @@ categories:
   - title: '✨ Enhancements'
     labels:
       - 'enhancement'
+  - title: '🛠️ Refactors'
+    labels:
+      - 'refactor'
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
