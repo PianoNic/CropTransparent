@@ -3,7 +3,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from src.api.router_registry import router_registry
 from dotenv import load_dotenv
-import os
 import logging
 from pathlib import Path
 
