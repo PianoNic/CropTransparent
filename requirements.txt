@@ -1,8 +1,10 @@
-fastapi==0.116.1
-uvicorn==0.35.0
-Pillow==11.3.0
-numpy==2.3.2
-python-dotenv==1.1.1
+fastapi==0.141.1
+uvicorn==0.54.0
+Pillow==12.3.0
+numpy==2.5.3
+resvg-py==0.5.0
+mediatorx==1.0.1
+python-dotenv==1.2.3
 jinja2==3.1.6
-python-multipart==0.0.20
-colorlog==6.9.0
+python-multipart==0.0.32
+colorlog==6.12.0
