@@ -73,7 +73,10 @@ class ImageProcessor {
     }
 
     async handleFile(file) {
-        if (!file.type.startsWith('image/')) {
+        const isImage = file.type.startsWith('image/');
+        const isSVG = file.type === 'image/svg+xml' || file.name.endsWith('.svg');
+
+        if (!isImage && !isSVG) {
             alert('Please upload an image file');
             return;
         }
@@ -127,37 +130,12 @@ class ImageProcessor {
         this.resultSection.classList.remove('hidden');
     }
 
-    async downloadImage() {
+    downloadImage() {
         if (!this.processedImage || !this.processedFilename) return;
-
-        try {
-            const response = await fetch('/api/download', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    image: this.processedImage,
-                    filename: this.processedFilename,
-                }),
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = this.processedFilename;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-            } else {
-                console.error('Download failed');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        const a = document.createElement('a');
+        a.href = this.processedImage;
+        a.download = this.processedFilename;
+        a.click();
     }
 }
 

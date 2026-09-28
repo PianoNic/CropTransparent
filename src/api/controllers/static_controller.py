@@ -1,32 +1,36 @@
-import os
-from fastapi import Request
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from fastapi import APIRouter
+from mediatorx import Mediator
 
-router = APIRouter()
+from src.api.dependencies import MediatorDependency
+from src.application.queries.get_application_info.application_info import ApplicationInfo
+from src.application.queries.get_application_info.get_application_info_query import (
+    GetApplicationInfoQuery,
+)
 
-@router.get("/", response_class=HTMLResponse, include_in_schema=False)
-def index(request: Request):
-    templates = request.app.state.templates
-    environment = os.environ.get('FLASK_ENV', 'unknown')
-    version = os.environ.get('APP_VERSION', 'unknown')
-    version_url = f"https://github.com/Pianonic/CropTransparent/releases/tag/{version}"
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "environment": environment,
-        "version": version,
-        "version_url": version_url
-    })
+router = APIRouter(include_in_schema=False)
 
-@router.get("/about", response_class=HTMLResponse, include_in_schema=False)
-def about(request: Request):
-    templates = request.app.state.templates
-    environment = os.environ.get('FLASK_ENV', 'unknown')
-    version = os.environ.get('APP_VERSION', 'unknown')
-    version_url = f"https://github.com/Pianonic/CropTransparent/releases/tag/{version}"
-    return templates.TemplateResponse("about.html", {
-        "request": request,
-        "environment": environment,
-        "version": version,
-        "version_url": version_url
-    })
+
+@router.get("/", response_class=HTMLResponse)
+async def index(request: Request, mediator: MediatorDependency) -> HTMLResponse:
+    return await _render(request, mediator, "index.html")
+
+
+@router.get("/about", response_class=HTMLResponse)
+async def about(request: Request, mediator: MediatorDependency) -> HTMLResponse:
+    return await _render(request, mediator, "about.html")
+
+
+async def _render(request: Request, mediator: Mediator, template_name: str) -> HTMLResponse:
+    info: ApplicationInfo = await mediator.send(GetApplicationInfoQuery())
+    release_url = f"https://github.com/Pianonic/CropTransparent/releases/tag/{info.version}"
+
+    return request.app.state.templates.TemplateResponse(
+        request,
+        template_name,
+        {
+            "environment": info.environment,
+            "version": info.version,
+            "version_url": release_url,
+        },
+    )
