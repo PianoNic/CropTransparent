@@ -1,29 +1,32 @@
+import logging
+from pathlib import Path
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 from src.api.router_registry import router_registry
-from dotenv import load_dotenv
-import logging
-from pathlib import Path
+from src.infrastructure.dependency_injection import build_mediator
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
-app = FastAPI(
-    title="Smart Image Cropper API",
-    description="API for automatically cropping transparent areas and backgrounds from images",
-    version="1.0.0"
-)
 
-base_dir = Path(__file__).parent.parent
+def create_app() -> FastAPI:
+    application = FastAPI(
+        title="Smart Image Cropper API",
+        description="API for automatically cropping transparent areas and backgrounds",
+        version="1.0.0",
+    )
 
-# Mount static files and templates using pathlib for cleaner paths
-static_dir = base_dir / "frontend"
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    frontend_dir = Path(__file__).parent.parent / "frontend"
+    application.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
+    application.state.templates = Jinja2Templates(directory=str(frontend_dir / "templates"))
+    application.state.mediator = build_mediator()
 
-templates_dir = base_dir / "frontend" / "templates"
-templates = Jinja2Templates(directory=str(templates_dir))
-app.state.templates = templates
+    router_registry.auto_register(application)
+    return application
 
-# Auto-register all controllers
-router_registry.auto_register(app)
+
+app = create_app()

@@ -1,79 +1,60 @@
 import base64
-import io
-from fastapi import File, HTTPException, UploadFile
-from fastapi.responses import JSONResponse, StreamingResponse
-from src.application.services import image_service
-from fastapi import APIRouter
+from typing import Annotated
 
-router = APIRouter()
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
-@router.post("/api/process", tags=["Image Processing"])
-async def process_image(file: UploadFile = File(...)):
-    if not file:
-        raise HTTPException(status_code=400, detail="No file part")
-    if file.filename == '':
+from src.api.dependencies import MediatorDependency
+from src.application.commands.crop_image.crop_image_command import CropImageCommand
+from src.domain.exceptions import (
+    EmptyUploadError,
+    ImageTooLargeError,
+    InvalidImageError,
+)
+from src.domain.models.cropped_image import CroppedImage
+
+router = APIRouter(prefix="/api", tags=["Image Processing"])
+
+
+@router.post("/process")
+async def process_image(
+    mediator: MediatorDependency,
+    file: Annotated[UploadFile, File()],
+) -> dict[str, object]:
+    if not file.filename:
         raise HTTPException(status_code=400, detail="No selected file")
-    try:
-        image_data = await file.read()
-        output_buffer, original_size, cropped_size, crop_method, background_info, output_format = image_service.auto_crop_image(image_data)
-        encoded = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
-        output_buffer.seek(0)
-        filename = file.filename or 'image.png'
-        original_extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'png'
-        if output_format:
-            extension = output_format.lower()
-            if extension == 'jpeg':
-                extension = 'jpg'
-        else:
-            if original_extension not in ['png', 'gif', 'webp', 'jpg', 'jpeg']:
-                extension = 'png'
-            else:
-                extension = original_extension
-                if extension == 'jpeg':
-                    extension = 'jpg'
-        mime_type = 'png'
-        if extension == 'jpg':
-            mime_type = 'jpeg'
-        elif extension in ['gif', 'webp']:
-            mime_type = extension
-        base_name = filename.rsplit('.', 1)[0] if '.' in filename else filename
-        output_filename = f"cropped_{base_name}.{extension}"
-        response_data = {
-            "success": True,
-            "image": f"data:image/{mime_type};base64,{encoded}",
-            "filename": output_filename,
-            "original_size": f"{original_size[0]}x{original_size[1]}",
-            "cropped_size": f"{cropped_size[0]}x{cropped_size[1]}",
-            "crop_method": crop_method,
-            "output_format": extension
-        }
-        if background_info:
-            response_data["background_color"] = background_info
-        return JSONResponse(content=response_data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/api/download", tags=["Image Processing"])
-async def download_image(data: dict):
+    command = CropImageCommand(
+        content=await file.read(),
+        file_name=file.filename,
+        content_type=file.content_type,
+    )
+
     try:
-        if not data or 'image' not in data or 'filename' not in data:
-            raise HTTPException(status_code=400, detail="Missing data")
-        image_data = data['image'].split(',')[1]
-        image_binary = base64.b64decode(image_data)
-        output = io.BytesIO(image_binary)
-        output.seek(0)
-        filename = data['filename']
-        extension = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'png'
-        mime_type_map = {
-            'png': 'image/png',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'gif': 'image/gif',
-            'webp': 'image/webp'
-        }
-        mime_type = mime_type_map.get(extension, 'image/png')
-        return StreamingResponse(output, media_type=mime_type, headers={
-            "Content-Disposition": f"attachment; filename={filename}"
-        })
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        result: CroppedImage = await mediator.send(command)
+    except EmptyUploadError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except ImageTooLargeError as error:
+        raise HTTPException(status_code=413, detail=str(error)) from error
+    except InvalidImageError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return _to_response(result, file.filename)
+
+
+def _to_response(result: CroppedImage, source_file_name: str) -> dict[str, object]:
+    encoded = base64.b64encode(result.content).decode("utf-8")
+    base_name = source_file_name.rsplit(".", 1)[0] if "." in source_file_name else source_file_name
+    extension = result.output_format.file_extension
+
+    response: dict[str, object] = {
+        "success": True,
+        "image": f"data:{result.output_format.media_type};base64,{encoded}",
+        "filename": f"cropped_{base_name}.{extension}",
+        "original_size": str(result.original_size),
+        "cropped_size": str(result.cropped_size),
+        "crop_method": result.crop_method.value,
+        "output_format": extension,
+    }
+    if result.background_color is not None:
+        response["background_color"] = list(result.background_color.as_tuple())
+    return response
