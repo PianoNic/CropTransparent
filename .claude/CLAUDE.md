@@ -24,15 +24,22 @@ Closes #9
 
 ## Commit subject
 
-Past-tense imperative, verb first:
+Past tense, verb first, short: about 3–7 words, one idea, no body. No "and … and …" lists, no file paths. Squash merges end with `(#PR)`.
 
 - `Added <thing>`
-- `Implemented <thing>`
 - `Fixed <thing>`
-- `Updated <thing>`
+- `Rebuilt <thing>`
 - `Removed <thing>`
 
-No `Co-Authored-By:` trailers and no "Generated with Claude Code" footers.
+Examples:
+
+- `Rebuilt the frontend in Preact (#21)`
+- `Fixed server overload from upload floods (#23)`
+- `Guarded the log handler against duplicates`
+
+Release bumps (written by `release.yaml`): `Bumped application.properties to X for release [skip ci]`.
+
+No AI attribution of any kind: no `Co-Authored-By:` trailers (Claude, Copilot or otherwise) and no "Generated with Claude Code" footers. Squash-merge with `--body ""` so GitHub doesn't append trailers from the PR's commits.
 
 ## Labels
 
