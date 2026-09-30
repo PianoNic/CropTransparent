@@ -65,18 +65,30 @@ p { margin: 0; }
 }
 .tagline { color: var(--ink-soft); }
 .tools { display: flex; gap: 2px; margin-left: auto; }
+/* square hit area: browsers drop clicks on the rounded-off corners, so the rounding lives on ::before */
 .tools a, .tools button {
+  position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border: 0;
-  border-radius: 6px;
   background: none;
   color: var(--ink-soft);
   cursor: pointer;
 }
-.tools a:hover, .tools button:hover { color: var(--ink); background: rgb(127 127 127 / 0.14); }
+.tools a::before, .tools button::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  border-radius: 6px;
+}
+.tools a:hover, .tools button:hover { color: var(--ink); }
+.tools a:hover::before, .tools button:hover::before { background: rgb(127 127 127 / 0.14); }
+.tools :focus-visible { outline: none; }
+.tools :focus-visible::before { box-shadow: 0 0 0 2px var(--marker); }
 
 .bottom {
   display: flex;
