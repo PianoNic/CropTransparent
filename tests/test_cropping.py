@@ -293,3 +293,12 @@ def test_api_rejects_oversized_uploads_and_reports_busy():
     )
     assert response.status_code == 503
     assert response.headers["retry-after"] == "5"
+
+
+def test_sentry_stays_off_without_a_dsn_and_scrubs_auth_headers():
+    from src.infrastructure.monitoring.sentry_error_reporter import SentryErrorReporter
+
+    assert SentryErrorReporter(None, "test", "0.0.0").initialize() is False
+    event = {"request": {"headers": {"Authorization": "Bearer secret", "Accept": "*/*"}}}
+    scrubbed = SentryErrorReporter.scrub(event, {})
+    assert scrubbed["request"]["headers"] == {"Authorization": "[Filtered]", "Accept": "*/*"}

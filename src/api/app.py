@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -8,7 +9,11 @@ from starlette.exceptions import HTTPException
 from starlette.types import Scope
 
 from src.api.router_registry import router_registry
+from src.infrastructure.configuration.environment_application_info_provider import (
+    EnvironmentApplicationInfoProvider,
+)
 from src.infrastructure.dependency_injection import build_mediator
+from src.infrastructure.monitoring.sentry_error_reporter import SentryErrorReporter
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -27,6 +32,9 @@ class SpaStaticFiles(StaticFiles):
 
 
 def create_app() -> FastAPI:
+    info = EnvironmentApplicationInfoProvider()
+    SentryErrorReporter(os.getenv("SENTRY_DSN"), info.get_environment(), info.get_version()).initialize()
+
     application = FastAPI(
         title="Smart Image Cropper API",
         description="API for automatically cropping transparent areas and backgrounds",
