@@ -5,7 +5,7 @@ from PIL import Image, ImageSequence
 
 from src.domain.enums.crop_method import CropMethod
 from src.domain.enums.image_format import ImageFormat
-from src.domain.exceptions import InvalidImageError
+from src.domain.exceptions import ImageTooLargeError, InvalidImageError
 from src.domain.models.cropped_image import CroppedImage
 from src.domain.models.image_size import ImageSize
 from src.domain.models.rgb_color import RgbColor
@@ -14,6 +14,8 @@ _JPEG_QUALITY = 95
 _DEFAULT_BACKGROUND_THRESHOLD = 30
 _DEFAULT_CORNER_OFFSET = 5
 _SUPPORTED_PILLOW_FORMATS = {"JPEG", "PNG", "WEBP", "GIF"}
+_MAX_PIXELS = 50_000_000
+_MAX_ANIMATION_PIXELS = 200_000_000
 
 
 class PillowRasterImageCropper:
@@ -21,13 +23,25 @@ class PillowRasterImageCropper:
         self,
         background_threshold: float = _DEFAULT_BACKGROUND_THRESHOLD,
         corner_offset: int = _DEFAULT_CORNER_OFFSET,
+        max_pixels: int = _MAX_PIXELS,
+        max_animation_pixels: int = _MAX_ANIMATION_PIXELS,
     ) -> None:
         self._background_threshold = background_threshold
         self._corner_offset = corner_offset
+        self._max_pixels = max_pixels
+        self._max_animation_pixels = max_animation_pixels
 
     def crop(self, content: bytes) -> CroppedImage:
         try:
             image = Image.open(io.BytesIO(content))
+        except Image.DecompressionBombError as error:
+            raise ImageTooLargeError("Image dimensions are too large") from error
+        except Exception as error:
+            raise InvalidImageError("The uploaded file is not a readable image") from error
+
+        # open() only reads the header, so this runs before any pixel data is decoded
+        self._ensure_within_pixel_limits(image)
+        try:
             image.load()
         except Exception as error:
             raise InvalidImageError("The uploaded file is not a readable image") from error
@@ -37,6 +51,15 @@ class PillowRasterImageCropper:
         if self._has_transparency(image):
             return self._crop_transparent(image)
         return self._crop_background_colour(image)
+
+    def _ensure_within_pixel_limits(self, image: Image.Image) -> None:
+        width, height = image.size
+        if width * height > self._max_pixels:
+            limit = self._max_pixels // 1_000_000
+            raise ImageTooLargeError(f"Image too large ({width} × {height}, max {limit} megapixels)")
+        frames = getattr(image, "n_frames", 1)
+        if frames > 1 and frames * width * height > self._max_animation_pixels:
+            raise ImageTooLargeError(f"Animation too large ({frames} frames of {width} × {height})")
 
     @staticmethod
     def _has_transparency(image: Image.Image) -> bool:

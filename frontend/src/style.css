@@ -155,6 +155,32 @@ kbd {
   border-radius: 4px;
 }
 
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0 0 24px;
+  padding: 8px 8px 8px 12px;
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.25);
+}
+.notice .icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--paper-soft);
+  cursor: pointer;
+}
+.notice .icon:hover { color: var(--paper-ink); background: rgb(127 127 127 / 0.15); }
+
 .mat-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
 .mat-bar .clear { margin-left: auto; }
 

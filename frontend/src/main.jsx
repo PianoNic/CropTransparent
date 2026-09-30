@@ -9,6 +9,9 @@ import { Cutter } from './Cutter';
 import './style.css';
 
 const ACCEPT = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
+const MAX_BATCH = 50;
+const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_IN_FLIGHT = 3;
 const METHODS = {
   transparent: 'transparent edges',
   color_background: 'flat background',
@@ -28,6 +31,17 @@ const GitHub = ({ size = 24 }) => (
 const extension = (name) => name.split('.').pop().toLowerCase();
 const area = (size) => size.split('x').reduce((a, b) => a * b, 1);
 const dims = (size) => size.replace('x', ' × ');
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const isImage = (file) => ACCEPT.includes(extension(file.name || '')) || file.type.startsWith('image/');
+
+function skippedNotice(notImages, tooBig, overCap) {
+  const reasons = [
+    notImages && plural(notImages, 'non-image file'),
+    tooBig && `${plural(tooBig, 'image')} over 25 MB`,
+    overCap && `${overCap} past the ${MAX_BATCH}-image limit per drop`,
+  ].filter(Boolean);
+  return reasons.length ? `Skipped ${reasons.join(', ')}.` : null;
+}
 
 // images are already compressed, so store them (level 0) instead of deflating again
 async function downloadZip(results) {
@@ -77,27 +91,53 @@ function App() {
   const [items, setItems] = useState([]);
   const [dragging, setDragging] = useState(false);
   const [info, setInfo] = useState(null);
+  const [notice, setNotice] = useState(null);
   const input = useRef();
   const nextId = useRef(0);
+  const queue = useRef([]);
+  const inFlight = useRef(0);
 
   const update = (id, patch) => setItems((all) => all.map((it) => (it.id === id ? { ...it, ...patch } : it)));
 
-  const addFiles = (fileList) => {
-    for (const file of fileList) {
-      const id = nextId.current++;
-      const item = { id, name: file.name || 'pasted.png', status: 'processing' };
-      setItems((all) => [...all, item]);
-      if (!ACCEPT.includes(extension(item.name)) && !file.type.startsWith('image/')) {
-        update(id, { status: 'error', error: 'Not an image this tool can crop. Use PNG, JPEG, GIF, WEBP or SVG.' });
-        continue;
-      }
-      cropFile(file.name ? file : new File([file], item.name, { type: file.type }))
+  // a pasted folder can hold thousands of files; only a few requests are ever open at once
+  const pump = () => {
+    while (inFlight.current < MAX_IN_FLIGHT && queue.current.length) {
+      const { id, file } = queue.current.shift();
+      inFlight.current++;
+      update(id, { status: 'processing' });
+      cropFile(file)
         .then((result) => update(id, { status: 'done', result }))
-        .catch((error) => update(id, { status: 'error', error: error.message }));
+        .catch((error) => update(id, { status: 'error', error: error.message }))
+        .finally(() => { inFlight.current--; pump(); });
     }
   };
 
-  const remove = (id) => setItems((all) => all.filter((it) => it.id !== id));
+  const addFiles = (fileList) => {
+    const files = [...fileList];
+    const images = files.filter(isImage);
+    const small = images.filter((file) => file.size <= MAX_BYTES);
+    const accepted = small.slice(0, MAX_BATCH);
+    setNotice(skippedNotice(files.length - images.length, images.length - small.length, small.length - accepted.length));
+
+    const added = accepted.map((file) => {
+      const name = file.name || 'pasted.png';
+      const id = nextId.current++;
+      queue.current.push({ id, file: file.name ? file : new File([file], name, { type: file.type }) });
+      return { id, name, status: 'queued' };
+    });
+    setItems((all) => [...all, ...added]);
+    pump();
+  };
+
+  const remove = (id) => {
+    queue.current = queue.current.filter((job) => job.id !== id);
+    setItems((all) => all.filter((it) => it.id !== id));
+  };
+  const clear = () => {
+    queue.current = [];
+    setItems([]);
+    setNotice(null);
+  };
 
   useEffect(() => {
     fetch('api/app-info').then((r) => r.json()).then(setInfo).catch(() => {});
@@ -144,6 +184,13 @@ function App() {
           onChange={(e) => { addFiles(e.currentTarget.files); e.currentTarget.value = ''; }}
         />
 
+        {notice && (
+          <p class="notice" role="status">
+            <CircleAlert size={16} />{notice}
+            <button class="icon" onClick={() => setNotice(null)} aria-label="Dismiss"><X size={16} /></button>
+          </p>
+        )}
+
         {items.length === 0 ? (
           <div class="empty">
             <h1>Drop images on the mat</h1>
@@ -166,7 +213,7 @@ function App() {
                   <Download size={16} />Download all ({done.length})
                 </button>
               )}
-              <button class="btn plain clear" onClick={() => setItems([])}>Clear the mat</button>
+              <button class="btn plain clear" onClick={clear}>Clear the mat</button>
             </div>
             <div class="pieces">
               {items.map((item) => <Piece key={item.id} item={item} onRemove={() => remove(item.id)} />)}
@@ -182,7 +229,7 @@ function App() {
         <span class="spacer" />
         <a href="https://github.com/Pianonic/CropTransparent/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT licence</a>
         {info && (
-          <a href={`https://github.com/Pianonic/CropTransparent/releases/tag/${info.version}`} target="_blank" rel="noreferrer">
+          <a href={`https://github.com/Pianonic/CropTransparent/releases/tag/v${info.version.replace(/^v/i, '')}`} target="_blank" rel="noreferrer">
             {info.version} ({info.environment})
           </a>
         )}
@@ -216,7 +263,13 @@ function Piece({ item, onRemove }) {
   return (
     <article class={`piece is-${status}`}>
       <div class="piece-stage">
-        {status === 'processing' && <div class="cutting">Cutting…</div>}
+        {status === 'queued' && <div class="cutting">Queued</div>}
+        {status === 'processing' && (
+          <div class="cutting">
+            <span class="cut-line"><Cutter class="cut-knife" /></span>
+            Cutting…
+          </div>
+        )}
         {status === 'error' && <div class="failed"><CircleAlert size={20} />{item.error}</div>}
         {status === 'done' && (
           <span class="trim">
