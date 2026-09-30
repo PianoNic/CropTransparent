@@ -53,7 +53,4 @@ class CropImageCommandHandler:
 
     @staticmethod
     def _is_vector(command: CropImageCommand) -> bool:
-        return (
-            command.file_name.lower().endswith(_SVG_EXTENSION)
-            or command.content_type == _SVG_MEDIA_TYPE
-        )
+        return command.file_name.lower().endswith(_SVG_EXTENSION) or command.content_type == _SVG_MEDIA_TYPE

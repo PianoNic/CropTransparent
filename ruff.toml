@@ -1,0 +1,7 @@
+line-length = 110
+target-version = "py314"
+# vendored from fastapi-utils via SchulwareAPI; kept identical so it can be re-synced
+extend-exclude = ["src/api/controller.py"]
+
+[lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "C4", "RET", "ARG"]

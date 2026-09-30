@@ -90,16 +90,12 @@ def test_vector_cropper():
 def test_raster_cropping_through_mediator():
     mediator = build_mediator()
 
-    result = asyncio.run(
-        mediator.send(CropImageCommand(png_bytes((200, 200), (50, 50, 150, 150)), "a.png"))
-    )
+    result = asyncio.run(mediator.send(CropImageCommand(png_bytes((200, 200), (50, 50, 150, 150)), "a.png")))
     assert result.crop_method is CropMethod.TRANSPARENT
     assert result.cropped_size == ImageSize(100, 100), result.cropped_size
     assert result.output_format is ImageFormat.PNG
 
-    result = asyncio.run(
-        mediator.send(CropImageCommand(jpeg_bytes((200, 200), (50, 50, 150, 150)), "a.jpg"))
-    )
+    result = asyncio.run(mediator.send(CropImageCommand(jpeg_bytes((200, 200), (50, 50, 150, 150)), "a.jpg")))
     assert result.crop_method is CropMethod.COLOR_BACKGROUND
     assert close((result.cropped_size.width, result.cropped_size.height), (100, 100), 6)
     assert result.output_format is ImageFormat.JPEG
@@ -181,7 +177,10 @@ def test_jpeg_compression_fringe_is_trimmed():
         buffer = BytesIO()
         image.save(buffer, "JPEG", quality=40)
         result = asyncio.run(build_mediator().send(CropImageCommand(buffer.getvalue(), "a.jpg")))
-        assert close((result.cropped_size.width, result.cropped_size.height), (100, 100), 1), (colour, result.cropped_size)
+        assert close((result.cropped_size.width, result.cropped_size.height), (100, 100), 1), (
+            colour,
+            result.cropped_size,
+        )
 
 
 def test_spa_fallback_serves_index_but_keeps_api_404s():
@@ -213,7 +212,7 @@ def test_flood_is_turned_away_without_blocking_the_event_loop():
     release = threading.Event()
 
     class SlowCropper:
-        def crop(self, content):
+        def crop(self, _content):
             release.wait(5)
             return "cropped"
 
@@ -257,8 +256,11 @@ def test_pixel_limits_are_checked_before_decoding():
     assert raises_too_large(buffer.getvalue())
 
     svg = ResvgVectorImageCropper(max_render_pixels=1000 * 1000)
-    huge = b'<svg xmlns="http://www.w3.org/2000/svg" width="100000" height="100000"><rect width="5" height="5"/></svg>'
-    huge_in_inches = b'<svg xmlns="http://www.w3.org/2000/svg" width="20in" height="20in"><rect width="5" height="5"/></svg>'
+    svg_with_size = (
+        b'<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s"><rect width="5" height="5"/></svg>'
+    )
+    huge = svg_with_size % (b"100000", b"100000")
+    huge_in_inches = svg_with_size % (b"20in", b"20in")
     for content in (huge, huge_in_inches):
         try:
             svg.crop(content)
@@ -282,10 +284,12 @@ def test_api_rejects_oversized_uploads_and_reports_busy():
     assert response.status_code == 413, response.text
 
     class BusyMediator:
-        async def send(self, command):
+        async def send(self, _command):
             raise ServerBusyError("busy")
 
     app.state.mediator = BusyMediator()
-    response = client.post("/api/process", files={"file": ("a.png", png_bytes((10, 10), (0, 0, 5, 5)), "image/png")})
+    response = client.post(
+        "/api/process", files={"file": ("a.png", png_bytes((10, 10), (0, 0, 5, 5)), "image/png")}
+    )
     assert response.status_code == 503
     assert response.headers["retry-after"] == "5"
