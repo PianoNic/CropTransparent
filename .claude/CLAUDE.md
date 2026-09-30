@@ -55,3 +55,4 @@ FastAPI backend (onion architecture, CQRS via mediatorx) that crops transparent 
 - **Docker**: `docker compose up` (multi-stage build: Node builds the SPA, Python serves it).
 - **Version**: `application.properties` (`APP_VERSION`, `APP_ENVIRONMENT`). Don't bump it by hand; publishing a release runs `.github/workflows/release.yaml`, which writes the tag into it on main and then builds the image.
 - **Icons**: Lucide (`lucide-preact`). The knife illustration is `frontend/src/Cutter.jsx`.
+- **Docs**: detail lives in `docs/` (self-hosting, configuration, API, development, architecture, releasing). Keep the README to screenshots, features, quick start and links; update the matching doc when behaviour changes.
