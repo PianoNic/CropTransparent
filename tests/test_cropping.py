@@ -155,3 +155,50 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def test_animated_gif_keeps_every_frame():
+    # content moves between frames; the crop must cover the union and keep the animation
+    frames = []
+    for box in ((20, 20, 40, 40), (60, 60, 80, 80)):
+        frame = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        frame.paste((255, 0, 0, 255), box)
+        frames.append(frame)
+    buffer = BytesIO()
+    frames[0].save(buffer, "GIF", save_all=True, append_images=frames[1:], duration=100, loop=0, disposal=2)
+
+    result = asyncio.run(build_mediator().send(CropImageCommand(buffer.getvalue(), "a.gif")))
+    assert result.output_format is ImageFormat.GIF
+    assert result.cropped_size == ImageSize(60, 60), result.cropped_size
+    assert Image.open(BytesIO(result.content)).n_frames == 2
+
+
+def test_jpeg_compression_fringe_is_trimmed():
+    # saturated colours at low quality bleed a faint fringe well past the base threshold
+    for colour in ((20, 120, 200), (250, 200, 0), (0, 200, 0), (255, 0, 0)):
+        image = Image.new("RGB", (300, 200), (255, 255, 255))
+        image.paste(colour, (100, 50, 200, 150))
+        buffer = BytesIO()
+        image.save(buffer, "JPEG", quality=40)
+        result = asyncio.run(build_mediator().send(CropImageCommand(buffer.getvalue(), "a.jpg")))
+        assert close((result.cropped_size.width, result.cropped_size.height), (100, 100), 1), (colour, result.cropped_size)
+
+
+def test_spa_fallback_serves_index_but_keeps_api_404s():
+    import tempfile
+    from pathlib import Path
+
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from src.api.app import SpaStaticFiles
+
+    dist = Path(tempfile.mkdtemp())
+    (dist / "index.html").write_text("<p>spa</p>")
+    app = FastAPI()
+    app.mount("/", SpaStaticFiles(directory=dist, html=True))
+    client = TestClient(app)
+
+    assert client.get("/").text == "<p>spa</p>"
+    assert client.get("/some/client/route").text == "<p>spa</p>"
+    assert client.get("/api/nope").status_code == 404
