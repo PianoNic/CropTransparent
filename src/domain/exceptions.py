@@ -12,3 +12,7 @@ class InvalidImageError(DomainError):
 
 class EmptyUploadError(DomainError):
     pass
+
+
+class ServerBusyError(DomainError):
+    pass

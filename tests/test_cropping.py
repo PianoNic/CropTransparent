@@ -202,3 +202,90 @@ def test_spa_fallback_serves_index_but_keeps_api_404s():
     assert client.get("/").text == "<p>spa</p>"
     assert client.get("/some/client/route").text == "<p>spa</p>"
     assert client.get("/api/nope").status_code == 404
+
+
+def test_flood_is_turned_away_without_blocking_the_event_loop():
+    import threading
+
+    from src.application.commands.crop_image.crop_image_command_handler import CropImageCommandHandler
+    from src.domain.exceptions import ServerBusyError
+
+    release = threading.Event()
+
+    class SlowCropper:
+        def crop(self, content):
+            release.wait(5)
+            return "cropped"
+
+    handler = CropImageCommandHandler(SlowCropper(), SlowCropper(), max_concurrent=1, max_pending=2)
+    command = CropImageCommand(b"x", "a.png")
+
+    async def flood():
+        running = [asyncio.create_task(handler.handle(command)) for _ in range(2)]
+        # a blocking crop on the event loop would freeze this sleep until release.set()
+        await asyncio.wait_for(asyncio.sleep(0.05), timeout=1)
+        try:
+            await handler.handle(command)
+            raise AssertionError("third request should have been turned away")
+        except ServerBusyError:
+            pass
+        release.set()
+        return await asyncio.gather(*running)
+
+    assert asyncio.run(flood()) == ["cropped", "cropped"]
+
+
+def test_pixel_limits_are_checked_before_decoding():
+    from src.domain.exceptions import ImageTooLargeError
+    from src.infrastructure.imaging.pillow_raster_image_cropper import PillowRasterImageCropper
+
+    cropper = PillowRasterImageCropper(max_pixels=100 * 100, max_animation_pixels=3 * 50 * 50)
+
+    def raises_too_large(content):
+        try:
+            cropper.crop(content)
+        except ImageTooLargeError:
+            return True
+        return False
+
+    assert raises_too_large(png_bytes((101, 100), (0, 0, 10, 10)))
+    assert not raises_too_large(png_bytes((100, 100), (0, 0, 10, 10)))
+
+    frames = [Image.new("RGBA", (50, 50), (255, 0, 0, i + 1)) for i in range(4)]
+    buffer = BytesIO()
+    frames[0].save(buffer, "GIF", save_all=True, append_images=frames[1:], duration=100)
+    assert raises_too_large(buffer.getvalue())
+
+    svg = ResvgVectorImageCropper(max_render_pixels=1000 * 1000)
+    huge = b'<svg xmlns="http://www.w3.org/2000/svg" width="100000" height="100000"><rect width="5" height="5"/></svg>'
+    huge_in_inches = b'<svg xmlns="http://www.w3.org/2000/svg" width="20in" height="20in"><rect width="5" height="5"/></svg>'
+    for content in (huge, huge_in_inches):
+        try:
+            svg.crop(content)
+            raise AssertionError("oversized SVG should be rejected before rendering")
+        except ImageTooLargeError:
+            pass
+    assert svg.crop(RECT).cropped_size.width < 200
+
+
+def test_api_rejects_oversized_uploads_and_reports_busy():
+    from fastapi.testclient import TestClient
+
+    from src.api.app import create_app
+    from src.domain.exceptions import ServerBusyError
+
+    app = create_app()
+    client = TestClient(app)
+
+    too_big = b"\0" * (25 * 1024 * 1024 + 1)
+    response = client.post("/api/process", files={"file": ("big.png", too_big, "image/png")})
+    assert response.status_code == 413, response.text
+
+    class BusyMediator:
+        async def send(self, command):
+            raise ServerBusyError("busy")
+
+    app.state.mediator = BusyMediator()
+    response = client.post("/api/process", files={"file": ("a.png", png_bytes((10, 10), (0, 0, 5, 5)), "image/png")})
+    assert response.status_code == 503
+    assert response.headers["retry-after"] == "5"
