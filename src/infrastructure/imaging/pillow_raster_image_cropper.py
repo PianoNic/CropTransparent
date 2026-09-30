@@ -1,7 +1,7 @@
 import io
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageSequence
 
 from src.domain.enums.crop_method import CropMethod
 from src.domain.enums.image_format import ImageFormat
@@ -32,6 +32,8 @@ class PillowRasterImageCropper:
         except Exception as error:
             raise InvalidImageError("The uploaded file is not a readable image") from error
 
+        if getattr(image, "n_frames", 1) > 1:
+            return self._crop_animated(image)
         if self._has_transparency(image):
             return self._crop_transparent(image)
         return self._crop_background_colour(image)
@@ -56,12 +58,52 @@ class PillowRasterImageCropper:
             output_format=ImageFormat.PNG,
         )
 
+    def _crop_animated(self, image: Image.Image) -> CroppedImage:
+        # one box for every frame (union of each frame's content) so the animation stays aligned
+        frames = [frame.convert("RGBA") for frame in ImageSequence.Iterator(image)]
+        durations = [frame.info.get("duration", 100) for frame in ImageSequence.Iterator(image)]
+        transparent = any(self._has_transparency(frame) for frame in frames)
+
+        background = None if transparent else self._sample_background_colour(frames[0])
+        boxes = [
+            frame.getbbox(alpha_only=True) if transparent else self._find_foreground_bounds(frame, background)
+            for frame in frames
+        ]
+        boxes = [box for box in boxes if box]
+        bounds = (
+            (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+            if boxes
+            else (0, 0, *image.size)
+        )
+        cropped = [frame.crop(bounds) for frame in frames]
+
+        output_format = self._resolve_output_format(image)
+        buffer = io.BytesIO()
+        cropped[0].save(
+            buffer,
+            format=output_format.name,
+            save_all=True,
+            append_images=cropped[1:],
+            duration=durations,
+            loop=image.info.get("loop", 0),
+            disposal=2,
+        )
+
+        return CroppedImage(
+            content=buffer.getvalue(),
+            original_size=ImageSize(*image.size),
+            cropped_size=ImageSize(*cropped[0].size),
+            crop_method=CropMethod.TRANSPARENT if transparent else CropMethod.COLOR_BACKGROUND,
+            output_format=output_format,
+            background_color=background,
+        )
+
     def _crop_background_colour(self, image: Image.Image) -> CroppedImage:
         output_format = self._resolve_output_format(image)
         working_image = image if image.mode in ("RGB", "RGBA") else image.convert("RGB")
 
         background = self._sample_background_colour(working_image)
-        bounds = self._find_foreground_bounds(working_image, background)
+        bounds = self._find_foreground_bounds(working_image, background, lossy=image.format == "JPEG")
         cropped = working_image.crop(bounds) if bounds else working_image
 
         return CroppedImage(
@@ -91,13 +133,39 @@ class PillowRasterImageCropper:
         self,
         image: Image.Image,
         background: RgbColor,
+        lossy: bool = False,
     ) -> tuple[int, int, int, int] | None:
         pixels = np.array(image)[:, :, :3].astype(np.float32)
         distances = np.sqrt(np.sum((pixels - np.array(background.as_tuple())) ** 2, axis=2))
         rows, columns = np.where(distances > self._background_threshold)
         if rows.size == 0:
             return None
-        return int(columns.min()), int(rows.min()), int(columns.max()) + 1, int(rows.max()) + 1
+        bounds = int(columns.min()), int(rows.min()), int(columns.max()) + 1, int(rows.max()) + 1
+        return self._trim_compression_halo(distances, bounds) if lossy else bounds
+
+    @staticmethod
+    def _trim_compression_halo(
+        distances: np.ndarray,
+        bounds: tuple[int, int, int, int],
+    ) -> tuple[int, int, int, int]:
+        # JPEG ringing / chroma bleed leaves a faint fringe (up to one 8px block) outside real edges.
+        # Peel an outer line while it is less than half as strong as the strongest line within the next block.
+        left, top, right, bottom = bounds
+        while right - left > 9:
+            if distances[top:bottom, left].max() < 0.5 * distances[top:bottom, left + 1 : left + 9].max():
+                left += 1
+            elif distances[top:bottom, right - 1].max() < 0.5 * distances[top:bottom, right - 9 : right - 1].max():
+                right -= 1
+            else:
+                break
+        while bottom - top > 9:
+            if distances[top, left:right].max() < 0.5 * distances[top + 1 : top + 9, left:right].max():
+                top += 1
+            elif distances[bottom - 1, left:right].max() < 0.5 * distances[bottom - 9 : bottom - 1, left:right].max():
+                bottom -= 1
+            else:
+                break
+        return left, top, right, bottom
 
     @staticmethod
     def _resolve_output_format(image: Image.Image) -> ImageFormat:
