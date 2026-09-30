@@ -41,7 +41,7 @@ jobs:
 
           sed -i "s/^APP_VERSION=.*/APP_VERSION=$VERSION/" application.properties
           git add application.properties
-          git commit -m "Bump version to $VERSION [skip ci]"
+          git commit -m "Bumped application.properties to $VERSION for release [skip ci]"
           git push origin HEAD:main
 
   docker:
