@@ -94,7 +94,12 @@ class PillowRasterImageCropper:
         ]
         boxes = [box for box in boxes if box]
         bounds = (
-            (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+            (
+                min(b[0] for b in boxes),
+                min(b[1] for b in boxes),
+                max(b[2] for b in boxes),
+                max(b[3] for b in boxes),
+            )
             if boxes
             else (0, 0, *image.size)
         )
@@ -177,14 +182,20 @@ class PillowRasterImageCropper:
         while right - left > 9:
             if distances[top:bottom, left].max() < 0.5 * distances[top:bottom, left + 1 : left + 9].max():
                 left += 1
-            elif distances[top:bottom, right - 1].max() < 0.5 * distances[top:bottom, right - 9 : right - 1].max():
+            elif (
+                distances[top:bottom, right - 1].max()
+                < 0.5 * distances[top:bottom, right - 9 : right - 1].max()
+            ):
                 right -= 1
             else:
                 break
         while bottom - top > 9:
             if distances[top, left:right].max() < 0.5 * distances[top + 1 : top + 9, left:right].max():
                 top += 1
-            elif distances[bottom - 1, left:right].max() < 0.5 * distances[bottom - 9 : bottom - 1, left:right].max():
+            elif (
+                distances[bottom - 1, left:right].max()
+                < 0.5 * distances[bottom - 9 : bottom - 1, left:right].max()
+            ):
                 bottom -= 1
             else:
                 break

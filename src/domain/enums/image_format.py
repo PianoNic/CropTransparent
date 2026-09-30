@@ -17,7 +17,7 @@ class ImageFormat(StrEnum):
         return "image/svg+xml" if self is ImageFormat.SVG else f"image/{self.value}"
 
     @classmethod
-    def from_extension(cls, extension: str) -> "ImageFormat | None":
+    def from_extension(cls, extension: str) -> ImageFormat | None:
         normalised = extension.lower().lstrip(".")
         if normalised == "jpg":
             return cls.JPEG
