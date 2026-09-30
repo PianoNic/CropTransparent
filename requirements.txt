@@ -7,3 +7,4 @@ mediatorx==1.0.1
 python-dotenv==1.2.3
 python-multipart==0.0.32
 colorlog==6.12.0
+sentry-sdk[fastapi]==2.71.0
