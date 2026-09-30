@@ -12,7 +12,7 @@
   <a href="https://github.com/PianoNic/CropTransparent"><img src="https://badgetrack.pianonic.ch/badge?tag=crop-transparent&label=visits&color=2d6a4f&style=flat" alt="visits"/></a>
   <a href="https://github.com/PianoNic/CropTransparent/blob/main/LICENSE"><img src="https://img.shields.io/github/license/PianoNic/CropTransparent?color=2d6a4f&label=License" alt="License"/></a>
   <a href="https://github.com/PianoNic/CropTransparent/releases"><img src="https://img.shields.io/github/v/release/PianoNic/CropTransparent?include_prereleases&color=2d6a4f&label=Latest%20Release" alt="Latest release"/></a>
-  <a href="#installation"><img src="https://img.shields.io/badge/Selfhost-Instructions-2d6a4f.svg" alt="Self-hosting"/></a>
+  <a href="docs/self-hosting.md"><img src="https://img.shields.io/badge/Selfhost-Instructions-2d6a4f.svg" alt="Self-hosting"/></a>
 </p>
 
 ## Screenshots
@@ -43,67 +43,23 @@
 - **SVGs stay vector**: the `viewBox` is tightened to the content, paths are untouched.
 - **Batch friendly**: drop, browse or paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>) several images at once, then download one or all as a ZIP.
 - **Private**: images are processed in memory and never written to disk.
-- **API**: everything the UI does is a single `POST /api/process`, documented at `/docs`.
 
-## Installation
-
-### Docker Compose (recommended)
-
-Create a `compose.yml`:
-
-```yaml
-services:
-  crop-transparent:
-    image: pianonic/croptransparent:latest # Docker Hub
-    # image: ghcr.io/pianonic/croptransparent:latest # GitHub Container Registry
-    ports:
-      - "5000:5000"
-    restart: unless-stopped
-```
-
-```bash
-docker compose up -d
-```
-
-Open <http://localhost:5000>.
-
-### Docker
+## Quick start
 
 ```bash
 docker run -p 5000:5000 ghcr.io/pianonic/croptransparent:latest
 ```
 
-### From source
+Open <http://localhost:5000>.
 
-Requires Python 3.11+ and Node 22+.
+## Documentation
 
-```bash
-cd frontend && npm install && npm run build && cd ..
-pip install -r requirements.txt
-python asgi.py
-```
-
-For frontend work, run `npm run dev` in `frontend/` next to `python asgi.py`; Vite proxies `/api` to port 5000.
-
-Run the tests with `python -m pytest tests`.
-
-<details>
-<summary><strong>Tech stack</strong></summary>
-
-- **Backend**: Python + FastAPI, Pillow + NumPy for raster images, resvg for SVG rasterisation, [mediatorx](https://pypi.org/project/mediatorx/) for CQRS.
-- **Frontend**: [Preact](https://preactjs.com) + [Lucide](https://lucide.dev) icons, built with Vite and served by FastAPI as a SPA.
-- **Architecture**: onion; dependencies point inwards only.
-
-```
-src/
-  domain/          enums, models and exceptions - no framework dependencies
-  application/     use cases as commands and queries, plus the ports they need
-  infrastructure/  Pillow / resvg / environment adapters + the composition root
-  api/             FastAPI controllers, which only build a message and send it
-frontend/          Preact SPA; npm run build emits frontend/dist, served at /
-```
-
-</details>
+- [Self-hosting](docs/self-hosting.md): Docker Compose, Docker and updating
+- [Configuration](docs/configuration.md): environment variables and limits
+- [API](docs/api.md): cropping images without the UI
+- [Development](docs/development.md): running from source, tests and linting
+- [Architecture](docs/architecture.md): how the code is organised
+- [Releasing](docs/releasing.md): how versions and images are published
 
 ## License
 
