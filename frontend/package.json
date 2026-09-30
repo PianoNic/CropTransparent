@@ -1,0 +1,19 @@
+{
+  "name": "croptransparent-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@fontsource/barlow-semi-condensed": "^5.3.0",
+    "fflate": "^0.8.3",
+    "lucide-preact": "^1.49.0",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "vite": "^8.3.1"
+  }
+}
